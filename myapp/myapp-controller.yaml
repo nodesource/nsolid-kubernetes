@@ -20,7 +20,7 @@ spec:
             - name: NSOLID_APPNAME
               value: myapp
             - name: NSOLID_HUB
-              value: "registry:4001"
+              value: "nsolid-registry:4001"
             - name: NSOLID_SOCKET
               value: "8000"
             - name: PORT
