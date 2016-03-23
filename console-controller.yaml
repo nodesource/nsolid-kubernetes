@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nsolid-console
+  labels:
+    app: nsolid-console
+spec:
+  replicas: 1
+  selector:
+    app: nsolid-console
+  template:
+    metadata:
+      labels:
+        app: nsolid-console
+    spec:
+      containers:
+        - name: console
+          image: "nodesource/nsolid-console:v1.4.4"
+          env:
+            - name: NSOLID_APPNAME
+              value: nsolid-console
+            - name: NSOLID_HUB
+              value: "nsolid-registry:4001"
+            - name: NSOLID_SOCKET
+              value: "8000"
+          args:
+            - --hub=http://nsolid-proxy:9000
+          ports:
+            - containerPort: 3000
+              name: console
+            - containerPort: 8000
+              name: nsolid
