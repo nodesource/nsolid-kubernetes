@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: myapp
+  labels:
+    app: myapp
+spec:
+  replicas: 1
+  selector:
+    app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp
+          image: rosskukulinski/myapp:v1
+          env:
+            - name: NSOLID_APPNAME
+              value: myapp
+            - name: NSOLID_HUB
+              value: "nsolid-registry:4001"
+            - name: NSOLID_SOCKET
+              value: "8000"
+            - name: PORT
+              value: "4444"
+          ports:
+            - containerPort: 4444
+              name: myapp
+            - containerPort: 8000
+              name: nsolid
