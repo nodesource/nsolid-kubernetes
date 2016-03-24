@@ -79,7 +79,19 @@ kubectl create -f proxy-service.yaml
 kubectl create -f console-service.yaml
 ```
 
-* Note: console-service gets assigned a public ip address, this usually takes ~1min to provision.
+* Note: console-service gets assigned a public ip address (provided by a Google Load Balancer) which usually takes 1-2 minutes to provision.  Once created, you can get find this public ip under 'EXTERNAL_IP' when you run
+```bash
+$ kubectl get svc
+```
+
+For example, here's the N|Solid services running in our demo cluster:
+```
+NAME              CLUSTER_IP     EXTERNAL_IP       PORT(S)    SELECTOR             AGE
+kubernetes        10.67.240.1    <none>            443/TCP    <none>               18m
+nsolid-console    10.67.240.14   104.196.117.135   80/TCP     app=nsolid-console   4m
+nsolid-proxy      10.67.247.16   <none>            9000/TCP   app=nsolid-proxy     4m
+nsolid-registry   10.67.254.76   <none>            4001/TCP   app=nsolid-etcd      4m
+```
 
 
 ### Replication Controller / Pods
@@ -90,6 +102,26 @@ $ kubectl create -f proxy-controller.yaml
 $ kubectl create -f console-controller.yaml
 ```
 
+We can check that the N|Solid services are up by running:
+```bash
+$ kubectl get pods
+```
+
+For example, here are the three N|Solid pods running in our demo cluster:
+
+```
+NAME                   READY     STATUS    RESTARTS   AGE
+nsolid-console-r43b7   1/1       Running   0          43s
+nsolid-etcd-xw0cz      1/1       Running   0          57s
+nsolid-proxy-ua00q     1/1       Running   0          49s
+```
+
+At this point, you can verify that N|Solid is running properly by opening
+your web browser to the public ip address that the console service creates.
+
+You should see the N|Solid console which should look like this:
+![](docs/images/nsolid-console.png)
+
 ## Deploying your App with N|Solid
 
 ### Dockerize Application
@@ -97,7 +129,7 @@ $ kubectl create -f console-controller.yaml
 #### Example `Dockerfile`
 
 ```
-FROM nodesource/nsolid-node:latest
+FROM nodesource/nsolid:latest
 
 RUN mkdir -p /usr/src/app
 
@@ -168,7 +200,7 @@ spec:
             - name: NSOLID_HUB
               value: "registry:4001"
             - name: NSOLID_SOCKET
-              value: 8000
+              value: "8000"
             - name: PORT
               value: "4444"
           ports:
@@ -192,7 +224,7 @@ We can check `kubectl get svc` to find out the external ip address. This is an a
 
 ### Scaling
 
-Currently only one instance of `myapp` is running. We can increase the number of replicas and the service will automatically load balnce. N|Solid will automatically show an increase number of instances as well.
+Currently only one instance of `myapp` is running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
 
 ```bash
 $ kubectl scale rc myapp --replicas=4
