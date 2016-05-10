@@ -39,7 +39,7 @@ items:
         spec:
           containers:
             - name: console
-              image: "nodesource/nsolid-console:v1.4.4"
+              image: "nodesource/nsolid-console:v1.6.11"
               env:
                 - name: NSOLID_APPNAME
                   value: nsolid-console
@@ -70,7 +70,7 @@ items:
         spec:
           containers:
             - name: proxy
-              image: "nodesource/nsolid-hub:v3.4.2"
+              image: "nodesource/nsolid-hub:v4.0.0"
               args:
                 - --registry=nsolid-registry:4001
               env:
