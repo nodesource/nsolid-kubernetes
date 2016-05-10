@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:latest
+FROM nodesource/nsolid:v1.3.1
 
 RUN mkdir -p /usr/src/app
 

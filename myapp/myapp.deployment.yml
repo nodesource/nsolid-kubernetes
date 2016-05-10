@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: rosskukulinski/myapp:v1
+          image: rosskukulinski/myapp:v2
           env:
             - name: NSOLID_APPNAME
               value: myapp
@@ -21,6 +21,8 @@ spec:
               value: "nsolid-registry.nsolid:4001"
             - name: NSOLID_SOCKET
               value: "8000"
+            - name: NSOLID_TAGS
+              value: "nsolid-v1.3.1"
             - name: PORT
               value: "4444"
           ports:
