@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: myapp
-          image: rosskukulinski/myapp:v2
+          image: rosskukulinski/myapp:v4
           env:
             - name: NSOLID_APPNAME
               value: myapp
