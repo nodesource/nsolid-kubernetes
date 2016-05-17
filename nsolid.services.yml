@@ -30,6 +30,7 @@ items:
       namespace: nsolid
       name: nsolid-console
     spec:
+      sessionAffinity: ClientIP
       type: LoadBalancer
       ports:
         - port: 80
