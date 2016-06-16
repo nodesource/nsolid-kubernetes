@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nsolid
+---
+apiVersion: v1
+kind: ServiceList
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      namespace: nsolid
+      name: nsolid-registry
+    spec:
+      ports:
+        - port: 4001
+          targetPort: clientport
+      selector:
+        app: nsolid-registry
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      namespace: nsolid
+      name: nsolid-proxy
+    spec:
+      sessionAffinity: None
+      ports:
+        - port: 9000
+          targetPort: proxy
+      selector:
+        app: nsolid-proxy
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      namespace: nsolid
+      name: nsolid-console
+    spec:
+      sessionAffinity: ClientIP
+      type: LoadBalancer
+      ports:
+        - port: 80
+          targetPort: console
+      selector:
+        app: nsolid-console
+---
+apiVersion: extensions/v1beta1
+kind: DeploymentList
+items:
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      namespace: nsolid
+      labels:
+        app: nsolid-registry
+      name: nsolid-registry
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: nsolid-registry
+        spec:
+          containers:
+          - image: nodesource/nsolid-registry
+            name: nsolid-registry
+            ports:
+            - containerPort: 2380
+              name: serverport
+            - containerPort: 4001
+              name: clientport
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      namespace: nsolid
+      name: nsolid-console
+      labels:
+        app: nsolid-console
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: nsolid-console
+        spec:
+          containers:
+            - name: console
+              image: "nodesource/nsolid-console:v1.6.11"
+              env:
+                - name: NSOLID_APPNAME
+                  value: nsolid-console
+                - name: NSOLID_HUB
+                  value: "nsolid-registry:4001"
+                - name: NSOLID_SOCKET
+                  value: "8000"
+                - name: NSOLID_TAGS
+                  value: "nsolid-v1.3.1,console-v1.6.11"
+              args:
+                - --hub=http://nsolid-proxy:9000
+              ports:
+                - containerPort: 3000
+                  name: console
+                - containerPort: 8000
+                  name: nsolid
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      namespace: nsolid
+      name: nsolid-proxy
+      labels:
+        app: nsolid-proxy
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: nsolid-proxy
+        spec:
+          containers:
+            - name: proxy
+              image: "nodesource/nsolid-hub:v4.0.0"
+              args:
+                - --registry=nsolid-registry:4001
+              env:
+                - name: NSOLID_APPNAME
+                  value: nsolid-proxy
+                - name: NSOLID_HUB
+                  value: "nsolid-registry:4001"
+                - name: NSOLID_SOCKET
+                  value: "8000"
+                - name: NSOLID_TAGS
+                  value: "nsolid-v1.3.1,proxy-v4.0.0"
+              ports:
+                - containerPort: 9000
+                  name: proxy
+                - containerPort: 8000
+                  name: nsolid
