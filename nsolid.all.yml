@@ -13,7 +13,7 @@ items:
       name: nsolid-registry
     spec:
       ports:
-        - port: 4001
+        - port: 2379
           targetPort: clientport
       selector:
         app: nsolid-registry
@@ -66,7 +66,7 @@ items:
             ports:
             - containerPort: 2380
               name: serverport
-            - containerPort: 4001
+            - containerPort: 2379
               name: clientport
   - apiVersion: extensions/v1beta1
     kind: Deployment
@@ -89,7 +89,7 @@ items:
                 - name: NSOLID_APPNAME
                   value: nsolid-console
                 - name: NSOLID_HUB
-                  value: "nsolid-registry:4001"
+                  value: "nsolid-registry:2379"
                 - name: NSOLID_SOCKET
                   value: "8000"
                 - name: NSOLID_TAGS
@@ -119,12 +119,12 @@ items:
             - name: proxy
               image: "nodesource/nsolid-hub:v4.0.0"
               args:
-                - --registry=nsolid-registry:4001
+                - --registry=nsolid-registry:2379
               env:
                 - name: NSOLID_APPNAME
                   value: nsolid-proxy
                 - name: NSOLID_HUB
-                  value: "nsolid-registry:4001"
+                  value: "nsolid-registry:2379"
                 - name: NSOLID_SOCKET
                   value: "8000"
                 - name: NSOLID_TAGS

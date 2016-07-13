@@ -8,7 +8,7 @@ items:
       name: nsolid-registry
     spec:
       ports:
-        - port: 4001
+        - port: 2379
           targetPort: clientport
       selector:
         app: nsolid-registry
