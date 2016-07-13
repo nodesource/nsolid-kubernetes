@@ -5,6 +5,8 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 
 ### Installing kubernetes
 
+
+
 * [minikube](https://github.com/kubernetes/minikube) - for local development / testing.
 * [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
 * [kubernetes on GKE](https://cloud.google.com/container-engine/docs/quickstart) - Google Container Engine
@@ -12,8 +14,14 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/coreos/azure/) - Microsoft Azure (Weave-based)
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure (Flannel-based)
 
-### Kubernetes 
+## Quickstart
 
+
+```
+kubectl create -f nsolid.quickstart.yml --record
+```
+
+**NOTE:** Assumes kubectl is configured and pointed at your kubernetes cluster properly.
 
 
 ### Services
