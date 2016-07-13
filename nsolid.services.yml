@@ -37,3 +37,23 @@ items:
           targetPort: console
       selector:
         app: nsolid-console
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      namespace: nsolid
+      name: cluster-proxy
+      labels:
+        app: cluster-proxy
+    spec:
+      type: LoadBalancer
+      ports:
+        - name: http
+          protocol: TCP
+          port: 80
+          targetPort: 80
+        - name: https
+          protocol: TCP
+          port: 443
+          targetPort: 443
+      selector:
+        app: cluster-proxy
