@@ -16,6 +16,19 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 
 ## Quickstart
 
+Create the namespace `nsolid` to help isolate and manage the N|Solid components.
+
+```
+kubectl create -f nsolid.namespace.yml
+```
+
+Define the services
+
+```
+kubectl create -f nsolid.services.yml
+```
+
+Deploy N|Solid components
 
 ```
 kubectl create -f nsolid.quickstart.yml --record
