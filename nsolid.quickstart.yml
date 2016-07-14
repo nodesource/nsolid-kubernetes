@@ -89,3 +89,53 @@ items:
                   name: proxy
                 - containerPort: 8000
                   name: nsolid
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      namespace: nsolid
+      labels:
+        app: cluster-proxy
+      name: cluster-proxy
+    spec:
+      replicas: 2
+      template:
+        metadata:
+          labels:
+            app: cluster-proxy
+        spec:
+          containers:
+          - image: nginx
+            imagePullPolicy: Always
+            name: cluster-proxy
+            ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            volumeMounts:
+            - mountPath: /etc/nginx/
+              name: nginx-config
+            - mountPath: /etc/nginx/ssl/
+              name: nginx-tls
+            livenessProbe:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 30
+              timeoutSeconds: 1
+            readinessProbe:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 5
+              timeoutSeconds: 1
+          restartPolicy: Always
+          volumes:
+          - name: nginx-tls
+            secret:
+              secretName: nginx-tls
+          - name: nginx-config
+            configMap:
+              name: nginx-config
