@@ -30,8 +30,6 @@ items:
       namespace: nsolid
       name: nsolid-console
     spec:
-      sessionAffinity: ClientIP
-      type: LoadBalancer
       ports:
         - port: 80
           targetPort: console
@@ -41,9 +39,9 @@ items:
     kind: Service
     metadata:
       namespace: nsolid
-      name: cluster-proxy
+      name: nsolid-secure-proxy
       labels:
-        app: cluster-proxy
+        app: nsolid-secure-proxy
     spec:
       type: LoadBalancer
       ports:
@@ -56,4 +54,4 @@ items:
           port: 443
           targetPort: 443
       selector:
-        app: cluster-proxy
+        app: nsolid-secure-proxy
