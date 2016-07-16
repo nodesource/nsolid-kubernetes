@@ -94,14 +94,14 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: cluster-proxy
-      name: cluster-proxy
+        app: nsolid-secure-proxy
+      name: nsolid-secure-proxy
     spec:
       replicas: 2
       template:
         metadata:
           labels:
-            app: cluster-proxy
+            app: nsolid-secure-proxy
         spec:
           containers:
           - image: nginx
