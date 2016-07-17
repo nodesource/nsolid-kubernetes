@@ -5,8 +5,8 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 
 ### Installing kubernetes
 
-* [locally with minikube](./docs/local.md) - for local development / testing.
-* [kubernetes on GKE](./docs/GKE.md) - Google Container Enginer
+* [local with minikube](./docs/install/local.md) - for local development / testing.
+* [kubernetes on GKE](./docs/install/GKE.md) - Google Container Enginer
 * [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
 * [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/coreos/azure/) - Microsoft Azure (Weave-based)
