@@ -41,14 +41,8 @@ items:
             - name: console
               image: "nodesource/nsolid-console:v1.7.3"
               env:
-                - name: NSOLID_APPNAME
-                  value: nsolid-console
                 - name: NSOLID_HUB
                   value: "nsolid-registry:2379"
-                - name: NSOLID_SOCKET
-                  value: "8000"
-                - name: NSOLID_TAGS
-                  value: "nsolid-v1.4.0,console-v1.7.3"
               args:
                 - --hub=http://nsolid-proxy:9000
               ports:
@@ -106,7 +100,7 @@ items:
           containers:
           - image: nginx
             imagePullPolicy: Always
-            name: cluster-proxy
+            name: nsolid-secure-proxy
             ports:
             - containerPort: 80
               protocol: TCP
