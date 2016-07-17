@@ -1,0 +1,3 @@
+conf/certs/*.crt
+conf/certs/*.key
+conf/nginx/htpasswd
