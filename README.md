@@ -1,230 +1,127 @@
-## Setup
+## Overview
 
-* Make sure Docker is installed
-* Create a [Google Cloud](https://cloud.google.com/) account. (You can sign up for a free trial)
-* Create a Project in Google Cloud Dashboard.
+This repository is for deploying [N|Solid](https://nodesource.com/products/nsolid) with [Kubernetes](http://kubernetes.io/). It assumes that Kubernetes is already setup for your environment.
 
-### Installing gcloud command line utilities
 
-```bash
-  # install gcloud
-  curl https://sdk.cloud.google.com | bash
-  # Restart shell
-  exec -l $SHELL
-  gcloud components install kubectl
-  gcloud --quiet components update
-```
+### Installing kubernetes
 
-### Setup gcloud defaults
+* [local with minikube](./docs/install/local.md) - for local development / testing.
+* [kubernetes on GKE](./docs/install/GKE.md) - Google Container Enginer
+* [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
+* [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
+* [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/coreos/azure/) - Microsoft Azure (Weave-based)
+* [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure (Flannel-based)
 
-```bash
-gcloud auth login
-gcloud config set project <PROJECT_ID>
-gcloud config set compute/zone <ZONE>
-```
+## Quickstart
 
-* Your `PROJECT_ID` can be found in your dashboard
-* A Cluster is deployed to a single zone. You can find [more about zones here](https://cloud.google.com/compute/docs/zones?hl=en). Or you can select one from the list generated from `gcloud compute zones list`
-
-## Create a Cluster
+Make sure your `kubectl` is pointing to your active cluster.
 
 ```bash
-gcloud container clusters create nsolid-cluster \
- --username admin \
- --password password \
- --num-nodes 3 \
- --machine-type n1-standard-1 \
- --disk-size 80 \
- --enable-cloud-logging \
- --enable-cloud-monitoring \
- --scope "https://www.googleapis.com/auth/devstorage.read_write" \
- --wait
- ```
+./install
+```
 
-* Username & Password flags are for accessing your kubernetes cluster
-* Enable cloud logging & monitoring flags only work if you have enabled them in the dashboard. Logging requires creating a bucket to dump log files to.
-* Scope: Allows your instances to have oauth access to particular parts of the cloud api. In this case `devstorage.read_write` allows access to buckets.
-* `wait` blocks the command until cluster and instances are ready. This could take 3-5 minutes.
+### Access N|Solid Dashboard
 
-If you omit the `password` flag google will create one for you. After your cluster is setup you can find it by
+* Default username: `nsolid`
+* Default password: `demo`
+
+**NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
+
+#### With `minikube`
 
 ```bash
-gcloud container clusters describe nsolid-cluster | grep password
+printf "\nhttps://$(minikube ip):$(kubectl get svc nsolid-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
 ```
 
-### Set cluster as default
+or
+
+#### Cloud Deployment:
 
 ```bash
-  gcloud config set container/cluster nsolid-cluster
-  # share credentials with kubectl
-  gcloud container clusters get-credentials nsolid-cluster
+kubectl get svc nsolid-secure-proxy --namespace=nsolid
 ```
 
-### Accessing your Kubernetes dashboard
+Open `EXTERNAL-IP`
+
+
+### Uninstall N|Solid from kubernetes cluster
 
 ```bash
-kubectl cluster-info
-```
-The master url will provide you with a list of resource like the ui, swagger, logs, metrics, health, and api.
-
-## Deployment
-
-**WARNING**: The configuration exposes `nsolid-console` on a public ip address. This is for the purpose of the demo. It is remommended that you understand how to configure [GCE network](https://cloud.google.com/compute/docs/networking) for your needs.
-
-### Services
-
-```bash
-kubectl create -f registry-service.yaml
-kubectl create -f proxy-service.yaml
-kubectl create -f console-service.yaml
+kubectl delete ns nsolid --cascade
 ```
 
-* Note: console-service gets assigned a public ip address (provided by a Google Load Balancer) which usually takes 1-2 minutes to provision.  Once created, you can get find this public ip under 'EXTERNAL_IP' when you run
-```bash
-$ kubectl get svc
-```
+## Manual Install
 
-For example, here's the N|Solid services running in our demo cluster:
-```
-NAME              CLUSTER_IP     EXTERNAL_IP       PORT(S)    SELECTOR             AGE
-kubernetes        10.67.240.1    <none>            443/TCP    <none>               18m
-nsolid-console    10.67.240.14   104.196.117.135   80/TCP     app=nsolid-console   4m
-nsolid-proxy      10.67.247.16   <none>            9000/TCP   app=nsolid-proxy     4m
-nsolid-registry   10.67.254.76   <none>            4001/TCP   app=nsolid-etcd      4m
-```
+**NOTE:** Assumes kubectl is configured and pointed at your kubernetes cluster properly.
 
-
-### Replication Controller / Pods
-
-```bash
-$ kubectl create -f etcd-controller.yaml
-$ kubectl create -f proxy-controller.yaml
-$ kubectl create -f console-controller.yaml
-```
-
-We can check that the N|Solid services are up by running:
-```bash
-$ kubectl get pods
-```
-
-For example, here are the three N|Solid pods running in our demo cluster:
+#### Create the namespace `nsolid` to help isolate and manage the N|Solid components.
 
 ```
-NAME                   READY     STATUS    RESTARTS   AGE
-nsolid-console-r43b7   1/1       Running   0          43s
-nsolid-etcd-xw0cz      1/1       Running   0          57s
-nsolid-proxy-ua00q     1/1       Running   0          49s
+kubectl create -f nsolid.namespace.yml
 ```
 
-At this point, you can verify that N|Solid is running properly by opening
-your web browser to the public ip address that the console service creates.
+#### Create nginx SSL certificates
 
-You should see the N|Solid console which should look like this:
-![](docs/images/nsolid-console.png)
+```
+openssl req -x509 -nodes -newkey rsa:2048 -keyout conf/certs/nsolid-nginx.key -out conf/certs/nsolid-nginx.crt
+```
+
+#### Create Basic Auth file
+
+```
+rm ./conf/nginx/htpasswd
+htpasswd -cb ./conf/nginx/htpasswd {username} {password}
+```
+
+#### Create a `secret` to for certs to mount in nginx
+
+```
+kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
+```
+
+#### Create `configmap` for nginx settings
+```
+kubectl create configmap nginx-config --from-file=nginx --namespace=nsolid
+```
+
+#### Define the services
+
+```
+kubectl create -f nsolid.services.yml
+```
+
+#### Deploy N|Solid components
+
+```
+kubectl create -f nsolid.quickstart.yml --record
+```
+
+### Access Dashboard
+
+```
+kubectl get svc nsolid-secure-proxy --namespace=nsolid
+```
+
+Open `EXTERNAL-IP`
+
 
 ## Deploying your App with N|Solid
 
-### Dockerize Application
-
-#### Example `Dockerfile`
-
-```
-FROM nodesource/nsolid:latest
-
-RUN mkdir -p /usr/src/app
-
-WORKDIR /usr/src/app
-
-ADD server.js /usr/src/app/server.js
-
-ENTRYPOINT ["nsolid", "server.js"]
-```
-
-#### Build Docker Image
+### Quick Start
 
 ```bash
-docker build -t namespace/myapp:v1 .
+cd myapp
+npm install
+docker build -t myapp:v1 .
+kubectl create -f myapp.service.yml
+kubectl create -f myapp.deployment.yml
 ```
 
-Push image to a registry.
-
-```bash
-docker push namespace/myapp:v1
-```
-
-### Create Kubernete config files
-
-`myapp-service.yaml`
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: myapp
-spec:
-  type: LoadBalancer
-  ports:
-    - port: 80
-      targetPort: myapp
-  selector:
-    app: myapp
-```
-
-This tells kubernetes to create an external ip address and route all traffic on port 80 to the `myapp` targetPort. It will route to all pods that match the selector `app: myapp`.
-
-
-`myapp-controller.yaml`
-
-```yaml
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: myapp
-  labels:
-    app: myapp
-spec:
-  replicas: 1
-  selector:
-    app: myapp
-  template:
-    metadata:
-      labels:
-        app: myapp
-    spec:
-      containers:
-        - name: myapp
-          image: namespace/myapp:v1
-          env:
-            - name: NSOLID_APPNAME
-              value: myapp
-            - name: NSOLID_HUB
-              value: "registry:4001"
-            - name: NSOLID_SOCKET
-              value: "8000"
-            - name: PORT
-              value: "4444"
-          ports:
-            - containerPort: 4444
-              name: myapp
-            - containerPort: 8000
-              name: nsolid
-```
-
-### Deploy
-
-```bash
-$ kubectl create -f myapp-service.yaml
-$ kubectl create -f myapp-controller.yaml
-```
-
-We can check `kubectl get svc` to find out the external ip address. This is an async operation an may take a minute to full resolve and assign.
-
-`myapp` Should display with the N|Solid console.
-
+**NOTE:** container image in `myapp.deployment.yml` assumes `myapp:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
 
 ### Scaling
 
-Currently only one instance of `myapp` is running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
+Currently 3 instances of `myapp` are running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
 
 ```bash
 $ kubectl scale rc myapp --replicas=4
