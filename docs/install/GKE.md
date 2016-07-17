@@ -4,6 +4,10 @@
 * Create a [Google Cloud](https://cloud.google.com/) account. (You can sign up for a free trial)
 * Create a Project in Google Cloud Dashboard.
 
+### Enable Billing
+
+Make sure [billing is enabled](https://support.google.com/cloud/answer/6293499#enable-billing) for project.
+
 ### Installing gcloud command line utilities
 
 ```bash
@@ -39,7 +43,7 @@ gcloud container clusters create nsolid-cluster \
  --enable-cloud-monitoring \
  --scope "https://www.googleapis.com/auth/devstorage.read_write" \
  --wait
- ```
+```
 
 * Username & Password flags are for accessing your kubernetes cluster
 * Enable cloud logging & monitoring flags only work if you have enabled them in the dashboard. Logging requires creating a bucket to dump log files to.
@@ -67,6 +71,3 @@ kubectl cluster-info
 ```
 The master url will provide you with a list of resource like the ui, swagger, logs, metrics, health, and api.
 
-## Deployment
-
-**WARNING**: The configuration exposes `nsolid-console` on a public ip address. This is for the purpose of the demo. It is remommended that you understand how to configure [GCE network](https://cloud.google.com/compute/docs/networking) for your needs.
