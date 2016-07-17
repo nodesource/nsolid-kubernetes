@@ -5,36 +5,102 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 
 ### Installing kubernetes
 
-
-
-* [minikube](https://github.com/kubernetes/minikube) - for local development / testing.
+* [locally with minikube](./docs/local.md) - for local development / testing.
+* [kubernetes on GKE](./docs/GKE.md) - Google Container Enginer
 * [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
-* [kubernetes on GKE](https://cloud.google.com/container-engine/docs/quickstart) - Google Container Engine
 * [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/coreos/azure/) - Microsoft Azure (Weave-based)
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure (Flannel-based)
 
 ## Quickstart
 
-Create the namespace `nsolid` to help isolate and manage the N|Solid components.
+Make sure your `kubectl` is pointing to your active cluster.
+
+```bash
+./install
+```
+
+### Access N|Solid Dashboard
+
+* Default username: `nsolid`
+* Default password: `demo`
+
+#### With `minikube`
+
+```bash
+printf "\nhttps://$(minikube ip):$(kubectl get svc nsolid-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
+```
+
+or
+
+#### Cloud Deployment:
+
+```bash
+kubectl get svc nsolid-secure-proxy --namespace=nsolid
+```
+
+Open `EXTERNAL-IP`
+
+
+### Uninstall N|Solid from kubernetes cluster
+
+```bash
+kubectl delete ns nsolid --cascade
+```
+
+## Manual Install
+
+**NOTE:** Assumes kubectl is configured and pointed at your kubernetes cluster properly.
+
+#### Create the namespace `nsolid` to help isolate and manage the N|Solid components.
 
 ```
 kubectl create -f nsolid.namespace.yml
 ```
 
-Define the services
+#### Create nginx SSL certificates
+
+```
+openssl req -x509 -nodes -newkey rsa:2048 -keyout conf/certs/nsolid-nginx.key -out conf/certs/nsolid-nginx.crt
+```
+
+#### Create Basic Auth file
+
+```
+rm ./conf/nginx/htpasswd
+htpasswd -cb ./conf/nginx/htpasswd {username} {password}
+```
+
+#### Create a `secret` to for certs to mount in nginx
+
+```
+kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
+```
+
+#### Create `configmap` for nginx settings
+```
+kubectl create configmap nginx-config --from-file=nginx --namespace=nsolid
+```
+
+#### Define the services
 
 ```
 kubectl create -f nsolid.services.yml
 ```
 
-Deploy N|Solid components
+#### Deploy N|Solid components
 
 ```
 kubectl create -f nsolid.quickstart.yml --record
 ```
 
-**NOTE:** Assumes kubectl is configured and pointed at your kubernetes cluster properly.
+### Access Dashboard
+
+```
+kubectl get svc nsolid-secure-proxy --namespace=nsolid
+```
+
+Open `EXTERNAL-IP`
 
 
 ## Deploying your App with N|Solid
