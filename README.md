@@ -156,3 +156,17 @@ kubectl create -f conf/nsolid.GCE.yml --record
 
 **Note:** Assumes disk names are named `nsolid-console` and `nsolid-registry`
 
+### AWS
+
+Make persistent disks
+
+```bash
+aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
+aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
+```
+
+Then run
+
+```bash
+kubectl create -f conf/nsolid.AWS.yml --record
+```
