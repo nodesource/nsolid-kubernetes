@@ -18,11 +18,21 @@ items:
           containers:
           - image: nodesource/nsolid-registry
             name: nsolid-registry
+            args:
+              - --data-dir /var/lib/nsolid/registry
             ports:
             - containerPort: 2380
               name: serverport
             - containerPort: 2379
               name: clientport
+            volumeMounts:
+            - name: nsolid-registry
+              mountPath: /var/lib/nsolid/registry
+          volumes:
+          - name: nsolid-registry
+            gcePersistentDisk:
+              pdName: nsolid-registry
+              fsType: ext4
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
@@ -45,11 +55,20 @@ items:
                   value: "nsolid-registry:2379"
               args:
                 - --hub=http://nsolid-proxy:9000
+                - --storage=/var/lib/nsolid/console
               ports:
                 - containerPort: 3000
                   name: console
                 - containerPort: 8000
                   name: nsolid
+              volumeMounts:
+              - name: nsolid-console
+                mountPath: /var/nsolid/console
+          volumes:
+          - name: nsolid-console
+            gcePersistentDisk:
+              pdName: nsolid-console
+              fsType: ext4
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
@@ -69,7 +88,6 @@ items:
               image: "nodesource/nsolid-hub:v4.0.0"
               args:
                 - --registry=nsolid-registry:2379
-                - --storage=/var/nsolid/console
               env:
                 - name: NSOLID_APPNAME
                   value: nsolid-proxy
@@ -84,14 +102,6 @@ items:
                   name: proxy
                 - containerPort: 8000
                   name: nsolid
-              volumeMounts:
-              - name: nsolid-console
-                mountPath: /var/nsolid/console
-          volumes:
-          - name: nsolid-console
-            gcePersistentDisk:
-              pdName: nsolid-console
-              fsType: ext4
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
