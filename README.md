@@ -126,3 +126,33 @@ Currently 3 instances of `myapp` are running. We can increase the number of repl
 ```bash
 $ kubectl scale rc myapp --replicas=4
 ```
+
+## Production Install
+
+```bash
+kubectl create -f nsolid.namespace.yml
+openssl req -x509 -nodes -newkey rsa:2048 -keyout conf/certs/nsolid-nginx.key -out conf/certs/nsolid-nginx.crt
+rm ./conf/nginx/htpasswd
+htpasswd -cb ./conf/nginx/htpasswd {username} {password}
+kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
+kubectl create configmap nginx-config --from-file=nginx --namespace=nsolid
+kubectl create -f nsolid.services.yml
+```
+
+### GCE
+
+Make persistent disks
+
+```bash
+gcloud compute disks create --size=10GB nsolid-console
+gcloud compute disks create --size=10GB nsolid-registry
+```
+
+Then run
+
+```bash
+kubectl create -f conf/nsolid.GCE.yml --record
+```
+
+**Note:** Assumes disk names are named `nsolid-console` and `nsolid-registry`
+
