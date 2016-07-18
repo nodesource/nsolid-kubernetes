@@ -57,7 +57,7 @@ kubectl delete ns nsolid --cascade
 #### Create the namespace `nsolid` to help isolate and manage the N|Solid components.
 
 ```
-kubectl create -f nsolid.namespace.yml
+kubectl create -f conf/nsolid.namespace.yml
 ```
 
 #### Create nginx SSL certificates
@@ -81,19 +81,19 @@ kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsoli
 
 #### Create `configmap` for nginx settings
 ```
-kubectl create configmap nginx-config --from-file=nginx --namespace=nsolid
+kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 ```
 
 #### Define the services
 
 ```
-kubectl create -f nsolid.services.yml
+kubectl create -f conf/nsolid.services.yml
 ```
 
 #### Deploy N|Solid components
 
 ```
-kubectl create -f nsolid.quickstart.yml --record
+kubectl create -f conf/nsolid.quickstart.yml --record
 ```
 
 ### Access Dashboard
@@ -130,13 +130,13 @@ $ kubectl scale rc myapp --replicas=4
 ## Production Install
 
 ```bash
-kubectl create -f nsolid.namespace.yml
+kubectl create -f conf/nsolid.namespace.yml
 openssl req -x509 -nodes -newkey rsa:2048 -keyout conf/certs/nsolid-nginx.key -out conf/certs/nsolid-nginx.crt
 rm ./conf/nginx/htpasswd
 htpasswd -cb ./conf/nginx/htpasswd {username} {password}
 kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
-kubectl create configmap nginx-config --from-file=nginx --namespace=nsolid
-kubectl create -f nsolid.services.yml
+kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
+kubectl create -f conf/nsolid.services.yml
 ```
 
 ### GCE
