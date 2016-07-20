@@ -40,9 +40,6 @@ items:
           containers:
             - name: console
               image: "nodesource/nsolid-console:v1.7.3"
-              env:
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
               args:
                 - --hub=http://nsolid-proxy:9000
               ports:
@@ -69,15 +66,6 @@ items:
               image: "nodesource/nsolid-hub:v4.0.0"
               args:
                 - --registry=nsolid-registry:2379
-              env:
-                - name: NSOLID_APPNAME
-                  value: nsolid-proxy
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
-                - name: NSOLID_SOCKET
-                  value: "8000"
-                - name: NSOLID_TAGS
-                  value: "nsolid-v1.4.0,proxy-v4.0.0"
               ports:
                 - containerPort: 9000
                   name: proxy
