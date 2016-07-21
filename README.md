@@ -1,4 +1,4 @@
-![NSolid, Docker, and Kubernetes](images/container-banner.jpg)
+![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)
 
 ## Overview
 
