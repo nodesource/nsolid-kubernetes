@@ -30,6 +30,7 @@ items:
       namespace: nsolid
       name: nsolid-console
     spec:
+      sessionAffinity: ClientIP
       ports:
         - port: 80
           targetPort: console
@@ -44,6 +45,7 @@ items:
         app: nsolid-secure-proxy
     spec:
       type: LoadBalancer
+      sessionAffinity: ClientIP
       ports:
         - name: http
           protocol: TCP
