@@ -79,7 +79,7 @@ items:
         app: nsolid-secure-proxy
       name: nsolid-secure-proxy
     spec:
-      replicas: 2
+      replicas: 1
       template:
         metadata:
           labels:
