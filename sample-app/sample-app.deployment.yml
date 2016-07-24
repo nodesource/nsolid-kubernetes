@@ -18,7 +18,7 @@ spec:
             - name: NSOLID_APPNAME
               value: sample-app
             - name: NSOLID_HUB
-              value: "nsolid-registry.nsolid:2379"
+              value: "registry.nsolid:80"
             - name: NSOLID_SOCKET
               value: "8000"
             - name: NSOLID_TAGS

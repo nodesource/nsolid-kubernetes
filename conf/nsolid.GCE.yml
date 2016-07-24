@@ -6,18 +6,18 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: nsolid-registry
-      name: nsolid-registry
+        app: registry
+      name: registry
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-registry
+            app: registry
         spec:
           containers:
           - image: nodesource/nsolid-registry
-            name: nsolid-registry
+            name: registry
             args:
               - --data-dir /var/lib/nsolid/registry
             ports:
@@ -37,24 +37,21 @@ items:
     kind: Deployment
     metadata:
       namespace: nsolid
-      name: nsolid-console
+      name: console
       labels:
-        app: nsolid-console
+        app: console
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-console
+            app: console
         spec:
           containers:
             - name: console
               image: "nodesource/nsolid-console:v1.7.3"
-              env:
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
               args:
-                - --hub=http://nsolid-proxy:9000
+                - --hub=http://hub:80
                 - --storage=/var/lib/nsolid/console
               ports:
                 - containerPort: 3000
@@ -73,33 +70,24 @@ items:
     kind: Deployment
     metadata:
       namespace: nsolid
-      name: nsolid-proxy
+      name: hub
       labels:
-        app: nsolid-proxy
+        app: hub
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-proxy
+            app: hub
         spec:
           containers:
-            - name: proxy
+            - name: hub
               image: "nodesource/nsolid-hub:v4.0.0"
               args:
-                - --registry=nsolid-registry:2379
-              env:
-                - name: NSOLID_APPNAME
-                  value: nsolid-proxy
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
-                - name: NSOLID_SOCKET
-                  value: "8000"
-                - name: NSOLID_TAGS
-                  value: "nsolid-v1.4.0,proxy-v4.0.0"
+                - --registry=registry:80
               ports:
                 - containerPort: 9000
-                  name: proxy
+                  name: hub
                 - containerPort: 8000
                   name: nsolid
   - apiVersion: extensions/v1beta1
@@ -107,19 +95,19 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: nsolid-secure-proxy
-      name: nsolid-secure-proxy
+        app: nginx-secure-proxy
+      name: nginx-secure-proxy
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-secure-proxy
+            app: nginx-secure-proxy
         spec:
           containers:
           - image: nginx
             imagePullPolicy: Always
-            name: nsolid-secure-proxy
+            name: nginx-secure-proxy
             ports:
             - containerPort: 80
               protocol: TCP

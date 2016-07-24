@@ -52,7 +52,7 @@ Make sure your `kubectl` is pointing to your active cluster.
 #### With `minikube`
 
 ```bash
-printf "\nhttps://$(minikube ip):$(kubectl get svc nsolid-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
+printf "\nhttps://$(minikube ip):$(kubectl get svc nginx-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
 ```
 
 or
@@ -60,7 +60,7 @@ or
 #### Cloud Deployment:
 
 ```bash
-kubectl get svc nsolid-secure-proxy --namespace=nsolid
+kubectl get svc nginx-secure-proxy --namespace=nsolid
 ```
 
 Open `EXTERNAL-IP`

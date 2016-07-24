@@ -10,38 +10,58 @@ items:
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-registry
+      name: registry
     spec:
       ports:
-        - port: 2379
+        - port: 80
           targetPort: clientport
       selector:
-        app: nsolid-registry
+        app: registry
   - apiVersion: v1
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-proxy
+      name: hub
     spec:
       sessionAffinity: None
       ports:
-        - port: 9000
-          targetPort: proxy
+        - port: 80
+          targetPort: hub
       selector:
-        app: nsolid-proxy
+        app: proxy
   - apiVersion: v1
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-console
+      name: console
     spec:
       sessionAffinity: ClientIP
-      type: LoadBalancer
       ports:
         - port: 80
           targetPort: console
       selector:
-        app: nsolid-console
+        app: console
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      namespace: nsolid
+      name: nginx-secure-proxy
+      labels:
+        app: nginx-secure-proxy
+    spec:
+      type: LoadBalancer
+      sessionAffinity: ClientIP
+      ports:
+        - name: http
+          protocol: TCP
+          port: 80
+          targetPort: 80
+        - name: https
+          protocol: TCP
+          port: 443
+          targetPort: 443
+      selector:
+        app: nginx-secure-proxy
 ---
 apiVersion: extensions/v1beta1
 kind: DeploymentList
@@ -51,18 +71,18 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: nsolid-registry
-      name: nsolid-registry
+        app: registry
+      name: registry
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-registry
+            app: registry
         spec:
           containers:
           - image: nodesource/nsolid-registry
-            name: nsolid-registry
+            name: registry
             ports:
             - containerPort: 2380
               name: serverport
@@ -72,30 +92,21 @@ items:
     kind: Deployment
     metadata:
       namespace: nsolid
-      name: nsolid-console
+      name: console
       labels:
-        app: nsolid-console
+        app: console
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-console
+            app: console
         spec:
           containers:
             - name: console
-              image: "nodesource/nsolid-console:v1.6.11"
-              env:
-                - name: NSOLID_APPNAME
-                  value: nsolid-console
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
-                - name: NSOLID_SOCKET
-                  value: "8000"
-                - name: NSOLID_TAGS
-                  value: "nsolid-v1.3.1,console-v1.6.11"
+              image: "nodesource/nsolid-console:v1.7.3"
               args:
-                - --hub=http://nsolid-proxy:9000
+                - --hub=http://hub:80
               ports:
                 - containerPort: 3000
                   name: console
@@ -105,32 +116,73 @@ items:
     kind: Deployment
     metadata:
       namespace: nsolid
-      name: nsolid-proxy
+      name: hub
       labels:
-        app: nsolid-proxy
+        app: hub
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: nsolid-proxy
+            app: proxy
         spec:
           containers:
             - name: proxy
               image: "nodesource/nsolid-hub:v4.0.0"
               args:
-                - --registry=nsolid-registry:2379
-              env:
-                - name: NSOLID_APPNAME
-                  value: nsolid-proxy
-                - name: NSOLID_HUB
-                  value: "nsolid-registry:2379"
-                - name: NSOLID_SOCKET
-                  value: "8000"
-                - name: NSOLID_TAGS
-                  value: "nsolid-v1.3.1,proxy-v4.0.0"
+                - --registry=registry:80
               ports:
                 - containerPort: 9000
-                  name: proxy
+                  name: hub
                 - containerPort: 8000
                   name: nsolid
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      namespace: nsolid
+      labels:
+        app: nginx-secure-proxy
+      name: nginx-secure-proxy
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: nginx-secure-proxy
+        spec:
+          containers:
+          - image: nginx
+            imagePullPolicy: Always
+            name: nginx-secure-proxy
+            ports:
+            - containerPort: 80
+              protocol: TCP
+            - containerPort: 443
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            volumeMounts:
+            - mountPath: /etc/nginx/
+              name: nginx-config
+            - mountPath: /etc/nginx/ssl/
+              name: nginx-tls
+            livenessProbe:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 30
+              timeoutSeconds: 1
+            readinessProbe:
+              httpGet:
+                path: /
+                port: 8080
+              initialDelaySeconds: 5
+              timeoutSeconds: 1
+          restartPolicy: Always
+          volumes:
+          - name: nginx-tls
+            secret:
+              secretName: nginx-tls
+          - name: nginx-config
+            configMap:
+              name: nginx-config
