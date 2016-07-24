@@ -90,7 +90,7 @@ kubectl create -f myapp.deployment.yml
 Currently 3 instances of `myapp` are running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
 
 ```bash
-$ kubectl scale rc myapp --replicas=4
+$ kubectl scale rs $(kubectl describe rs | grep 'Name:\s*myapp' | grep -o 'myapp-[0-9]*') --replicas=4
 ```
 
 <a name="a6"/>
