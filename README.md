@@ -9,6 +9,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 - [Quickstart](#a2)
     - [Access N|Solid Dashboard](#a3)
     - [Uninstall N|Solid](#a4)
+- [Deploy Sample App with N|Solid](#a5)
 - [Deploying your App with N|Solid](#a5)
 - [Production Install](#a6)
     - [N|Solid namespace](#a7)
@@ -72,25 +73,32 @@ kubectl delete ns nsolid --cascade
 ```
 
 <a name="a5"/>
-## Deploying your App with N|Solid
+## Deploy Sample App with N|Solid
 
 ### Quick Start
 
 ```bash
-cd myapp
-docker build -t myapp:v1 .
-kubectl create -f myapp.service.yml
-kubectl create -f myapp.deployment.yml
+cd sample-app
+npm install
+docker build -t sample-app:v1 .
+kubectl create -f sample-app.service.yml
+kubectl create -f sample-app.deployment.yml
 ```
 
-**NOTE:** container image in `myapp.deployment.yml` assumes `myapp:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
+**NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
 
-### Scaling
+#### Common Gotcha
 
-Currently 3 instances of `myapp` are running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
+If you get the following message when trying to run `docker build`
 
 ```bash
-$ kubectl scale rc myapp --replicas=4
+Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
+```
+
+Export the `DOCKER_API_VERSION` to match the server API version.
+
+```bash
+export DOCKER_API_VERSION=1.23
 ```
 
 <a name="a6"/>
