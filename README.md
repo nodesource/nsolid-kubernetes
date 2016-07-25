@@ -32,6 +32,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
         - [Setting ENV for cluster](#a25)
         - [Service Discovery](#a26)
     - [Common Gotchas](#a27)
+- [License & Copyright](#a28)
 
 <a name="a1"/>
 ## Installing kubernetes
@@ -308,3 +309,8 @@ Export the `DOCKER_API_VERSION` to match the server API version.
 ```bash
 export DOCKER_API_VERSION=1.23
 ```
+
+<a name="a28" />
+## License & Copyright
+
+**nsolid-kubernetes** is Copyright (c) 2016 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
