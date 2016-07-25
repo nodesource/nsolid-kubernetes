@@ -1,3 +1,29 @@
+apiVersion: v1
+kind: PersistentVolumeClaimList
+items:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      namespace: nsolid
+      name: nsolid-registry
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      namespace: nsolid
+      name: nsolid-console
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+---
 apiVersion: extensions/v1beta1
 kind: DeploymentList
 items:
@@ -60,7 +86,7 @@ items:
                   name: nsolid
               volumeMounts:
               - name: nsolid-console
-                mountPath: /var/nsolid/console
+                mountPath: /var/lib/nsolid/console
           volumes:
           - name: nsolid-console
             persistentVolumeClaim:
