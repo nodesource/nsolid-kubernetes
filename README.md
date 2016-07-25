@@ -4,6 +4,8 @@
 
 This repository is for deploying [N|Solid](https://nodesource.com/products/nsolid) with [Kubernetes](http://kubernetes.io/). It assumes that Kubernetes is already setup for your environment.
 
+![NSolid, Docker, and Kubernetes](docs/images/kubernetes-cluster.jpg)
+
 ### Table of Contents
 - [Installing kubernetes](#a1)
 - [Quickstart](#a2)
