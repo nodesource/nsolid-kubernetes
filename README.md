@@ -172,6 +172,7 @@ N|Solid components require persistent storage.  Kubernetes does not (yet!)
 automatically handle provisioning of disks consistently across all cloud providers.
 As such, you will need to manually create the persistent volumes.
 
+<a name="a13"/>
 ##### On Google Cloud
 
 Make sure the zone matches the zone you brought up your cluster in!
@@ -181,6 +182,7 @@ gcloud compute disks create --size 10GB nsolid-registry
 gcloud compute disks create --size 10GB nsolid-console
 ```
 
+<a name="a14"/>
 ##### On AWS
 
 We need to create our disks and then update the volumeIds in conf/nsolid.persistent.aws.yml.
