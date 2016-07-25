@@ -113,7 +113,10 @@ kubectl create -f sample-app.service.yml
 kubectl create -f sample-app.deployment.yml
 ```
 
-**NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
+**NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker image. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
+
+If you are working in a cloud environment, you will need to push the sample-app to a public Docker registry
+like [Dockerhub](https://dockerhub.com) or [Quay.io](https://quay.io), and update the sample-app Deployment file.
 
 
 <a name="a6"/>
