@@ -143,43 +143,20 @@ kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 <a name="a12"/>
 #### Define the services
 
-```
+```bash
 kubectl create -f conf/nsolid.services.yml
 ```
 
-<a name="a13"/>
-### GCE
-
-Make persistent disks
+#### Claim Persistent Volumes
 
 ```bash
-gcloud compute disks create --size=10GB nsolid-console
-gcloud compute disks create --size=10GB nsolid-registry
-```
-
-
-#### Deploy N|Solid components
-
-```bash
-kubectl create -f conf/nsolid.GCE.yml --record
-```
-
-**Note:** Assumes disk names are named `nsolid-console` and `nsolid-registry`
-
-<a name="a14"/>
-### AWS
-
-Make persistent disks
-
-```bash
-aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
-aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
+kubectl create -f conf/nsolid.persistent.yml
 ```
 
 #### Deploy N|Solid components
 
 ```bash
-kubectl create -f conf/nsolid.AWS.yml --record
+kubectl create -f conf/nsolid.cloud.yml
 ```
 
 <a name="a15"/>
