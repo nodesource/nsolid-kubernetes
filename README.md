@@ -213,8 +213,6 @@ When defining your application make sure the following `ENV` are set.
       value: "registry.nsolid:80"
     - name: NSOLID_SOCKET
       value: "8000"
-    - name: NSOLID_TAGS
-      value: "nsolid-v1.4.0"
 ```
 
 **NOTE:** `NSOLID_SOCKET` needs to be set so it isn't automatically assigned. It also needs to be exposed via the `ports` pod options so the N|Solid hub can communicate.
@@ -226,6 +224,8 @@ Optional flags:
     - name: NSOLID_TAGS
       value: "nsolid-v1.4.0,staging"
 ```
+
+A comma seperate list of tags that can be used to filter processes in the N|Solid console.
 
 <a name="a20"/>
 #### Accessing your App
