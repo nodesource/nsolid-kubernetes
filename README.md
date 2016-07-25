@@ -18,7 +18,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Configmap object for settings](#a11)
     - [Define Services](#a12)
     - [GCE persistent disks](#a13)
-    - [AWD persistent disks](#a14)
+    - [AWS persistent disks](#a14)
 - [Debugging / Troubleshooting](#a15)
     - [Configuring Apps for N|Solid with kubernetes](#a16)
         - [Buiding an N|Solid app](#a17)
@@ -53,13 +53,30 @@ Make sure your `kubectl` is pointing to your active cluster.
 ./install
 ```
 
+This command will install the N|Solid Console, Hub, and a secure HTTPS proxy to the `nsolid` namespace.
+
+It can take a little while for Kubernetes to download the N|Solid Docker images.  You can verify
+that they are active by running:
+
+```
+kubectl --namespace=nsolid get pods
+```
+
+When all four pods (console, hub, nginx-secure-proxy, and registry) have a status of 'Running', you may continue to access the N|Solid Dashboard.
+
 <a name="a3"/>
 ### Access N|Solid Dashboard
+
+![Welcome Screen](./docs/images/welcome.png)
 
 * Default username: `nsolid`
 * Default password: `demo`
 
 **NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
+
+N|Solid is free for non-production use, but does require a license key.  Request one from the Console welcome screen.  For more information, see the [N|Solid Quickstart](https://docs.nodesource.com/nsolid/1.4/docs/quickstart).
+
+![Request License Key](./docs/images/retrieve_key.png)
 
 #### With `minikube`
 
@@ -171,7 +188,7 @@ kubectl create -f conf/nsolid.cloud.yml
 <a name="a18"/>
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:v1.4.0`. 
+Make sure your docker image is build on top of `nodesource/nsolid:v1.4.0`.
 
 ```dockerfile
 FROM nodesource/nsolid:v1.4.0

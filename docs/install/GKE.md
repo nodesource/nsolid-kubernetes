@@ -1,7 +1,7 @@
 ## Setup
 
 * Make sure Docker is installed
-* Create a [Google Cloud](https://cloud.google.com/) account. (You can sign up for a free trial)
+* Create a [Google Cloud](https://cloud.google.com/) account. (You can sign up for a free trial!)
 * Create a Project in Google Cloud Dashboard.
 
 ### Enable Billing
@@ -70,4 +70,3 @@ gcloud container clusters describe nsolid-cluster | grep password
 kubectl cluster-info
 ```
 The master url will provide you with a list of resource like the ui, swagger, logs, metrics, health, and api.
-

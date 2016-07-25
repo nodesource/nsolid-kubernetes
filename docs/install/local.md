@@ -9,7 +9,10 @@ One of the following should be installed:
 * [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
 * [VMWare Fusion](https://www.vmware.com/products/fusion)
 
-#### kubectrl
+#### kubectl
+
+Install the proper version of `kubectl` for your environment.  kubectl is used to interact with a running
+Kubernetes cluster.
 
 ```bash
 # linux/amd64
@@ -22,13 +25,16 @@ curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0
 curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/arm64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 #linux/ppc64le
 curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/linux/ppc64le/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-# OS X/amd64 
+# OS X/amd64
 curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/darwin/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-# OS X/386 
+# OS X/386
 curl -Lo kubectl http://storage.googleapis.com/kubernetes-release/release/v1.3.0/bin/darwin/386/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
 ```
 
 #### minikube
+
+Install the proper build of minikube for your environment.  minikube manages a local kubernetes
+instance on your development machine.
 
 ```bash
 # OS X
@@ -44,7 +50,8 @@ curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.6.0/miniku
 minikube start
 ```
 
-If docker is not installed or you want to minikube docker daemon.
+We recommend configuring your Docker CLI to use the minikube Docker daemon so that
+builds are automatically synced to your Kubernetes cluster.
 
 ```bash
 eval $(minikube docker-env)
