@@ -88,15 +88,11 @@ kubectl get svc nginx-secure-proxy --namespace=nsolid
 
 Open `EXTERNAL-IP`
 
-![Welcome Screen](./docs/images/welcome.png)
-
-
-
 **NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
 
 N|Solid is free for non-production use, but does require a license key.  Request one from the Console welcome screen.  For more information, see the [N|Solid Quickstart](https://docs.nodesource.com/nsolid/1.4/docs/quickstart).
 
-![Request License Key](./docs/images/retrieve_key.png)
+![Welcome Screen](./docs/images/welcome.png)
 
 <a name="a4"/>
 ### Uninstall N|Solid from kubernetes cluster
