@@ -10,7 +10,6 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Access N|Solid Dashboard](#a3)
     - [Uninstall N|Solid](#a4)
 - [Deploy Sample App with N|Solid](#a5)
-- [Deploying your App with N|Solid](#a5)
 - [Production Install](#a6)
     - [N|Solid namespace](#a7)
     - [nginx SSL certificates](#a8)
@@ -20,7 +19,19 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Define Services](#a12)
     - [GCE persistent disks](#a13)
     - [AWD persistent disks](#a14)
-    
+- [Debugging / Troubleshooting](#a15)
+    - [Configuring Apps for N|Solid with kubernetes](#a16)
+        - [Buiding an N|Solid app](#a17)
+            - [Docker](#a18)
+            - [Kubernetes](#a19)
+        - [Accessing your App](#a20)
+    - [Accessing N|Solid kubernetes objects](#a21)
+        - [Setting `nsolid` as the default namespace](#a22)
+    - [Running `nsolid-cli`](#a23)
+    - [minikube](#a24)
+        - [Setting ENV for cluster](#a25)
+        - [Service Discovery](#a26)
+    - [Common Gotchas](#a27)
 
 <a name="a1"/>
 ## Installing kubernetes
@@ -87,19 +98,6 @@ kubectl create -f sample-app.deployment.yml
 
 **NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
 
-#### Common Gotcha
-
-If you get the following message when trying to run `docker build`
-
-```bash
-Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
-```
-
-Export the `DOCKER_API_VERSION` to match the server API version.
-
-```bash
-export DOCKER_API_VERSION=1.23
-```
 
 <a name="a6"/>
 ## Production Install
@@ -181,4 +179,132 @@ aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --v
 
 ```bash
 kubectl create -f conf/nsolid.AWS.yml --record
+```
+
+<a name="a15"/>
+## Debugging / Troubleshooting
+
+<a name="a16"/>
+### Configuring Apps for N|Solid with kubernetes
+
+<a name="a17"/>
+#### Buiding an N|Solid app
+
+<a name="a18"/>
+##### Docker
+
+Make sure your docker image is build on top of `nodesource/nsolid:v1.4.0`. 
+
+```dockerfile
+FROM nodesource/nsolid:v1.4.0
+```
+
+<a name="a19"/>
+##### Kubernetes
+
+When defining your application make sure the following `ENV` are set.
+
+```yaml
+  env:
+    - name: NSOLID_APPNAME
+      value: sample-app
+    - name: NSOLID_HUB
+      value: "registry.nsolid:80"
+    - name: NSOLID_SOCKET
+      value: "8000"
+    - name: NSOLID_TAGS
+      value: "nsolid-v1.4.0"
+```
+
+**NOTE:** `NSOLID_SOCKET` needs to be set so it isn't automatically assigned. It also needs to be exposed via the `ports` pod options so the N|Solid hub can communicate.
+
+Optional flags:
+
+```yaml
+  env:
+    - name: NSOLID_TAGS
+      value: "nsolid-v1.4.0,staging"
+```
+
+<a name="a20"/>
+#### Accessing your App
+
+```bash
+kubectl get svc {service-name}
+```
+
+The `EXTERNAL-IP` will access the application.
+
+
+<a name="a21"/>
+### Accessing N|Solid kubernetes objects
+
+Make sure you use the `--namespace=nsolid` flag on all `kubectl` commands.
+
+<a name="a22"/>
+#### Setting `nsolid` as the default namespace
+
+```bash
+kubectl config current-context // outputs current context
+kubectl config set-context {$context} --namespace=nsolid // make 'nsolid` the default namespace
+kubectl config set-context {$context} --namespace=default // revert to default
+```
+
+<a name="a23"/>
+### Running `nsolid-cli`
+
+**Verify CLI**:
+
+```bash
+kubectl exec {pod-name} -- nsolid-cli --hub=hub:80 ping
+```
+
+See [N|Solid cli docs](https://docs.nodesource.com/nsolid/1.4/docs/using-the-cli) for more info.
+
+
+<a name="a24"/>
+### minikube
+
+Minikube is a bit different then a normal kubernetes install. The DNS service isn't running so discovering is a bit more involved. IP addresses are not dynamically assigned, instead we must use the host ports the service is mapped to.
+
+<a name="a25"/>
+#### Setting ENV for cluster
+
+If your doing a lot of work with docker and minikube it is recommended that you run the following:
+
+```bash
+eval $(minikube docker-env)
+```
+
+<a name="a26"/>
+### Service discovery
+
+Get the kubernetes cluster ip address:
+
+```bash
+minikube ip
+```
+
+To get the service port:
+
+```bash
+kubectl get svc {$service-name} --output='jsonpath={.spec.ports[0].nodePort}'
+```
+
+**Note:** If your service exposes multiple ports you may want to examine with `--output='json'` instead.
+
+
+<a name="a27"/>
+### Common Gotchas
+
+If you get the following message when trying to run `docker build` or communicating with the kubernetes api.
+
+```bash
+Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
+```
+
+Export the `DOCKER_API_VERSION` to match the server API version.
+
+```bash
+export DOCKER_API_VERSION=1.23
 ```
