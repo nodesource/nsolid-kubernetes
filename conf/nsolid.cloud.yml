@@ -19,7 +19,8 @@ items:
           - image: nodesource/nsolid-registry
             name: registry
             args:
-              - --data-dir /var/lib/nsolid/registry
+              - "--data-dir"
+              - /var/lib/nsolid/registry
             ports:
             - containerPort: 2380
               name: serverport

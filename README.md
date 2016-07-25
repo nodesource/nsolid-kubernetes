@@ -166,10 +166,43 @@ kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 kubectl create -f conf/nsolid.services.yml
 ```
 
-#### Claim Persistent Volumes
+#### Create persistent disks
 
+N|Solid components require persistent storage.  Kubernetes does not (yet!)
+automatically handle provisioning of disks consistently across all cloud providers.
+As such, you will need to manually create the persistent volumes.
+
+##### On Google Cloud
+
+Make sure the zone matches the zone you brought up your cluster in!
+
+```
+gcloud compute disks create --size 10GB nsolid-registry
+gcloud compute disks create --size 10GB nsolid-console
+```
+
+##### On AWS
+
+We need to create our disks and then update the volumeIds in conf/nsolid.persistent.aws.yml.
+
+Make sure the zone matches the zone you brought up your cluster in!
+
+```
+aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
+aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
+```
+
+
+#### Configure Kubernetes to utilize the newly created persistent volumes
+
+##### GCE
 ```bash
-kubectl create -f conf/nsolid.persistent.yml
+kubectl create -f conf/nsolid.persistent.gce.yml
+```
+
+##### AWS
+```bash
+kubectl create -f conf/nsolid.persistent.aws.yml
 ```
 
 #### Deploy N|Solid components
