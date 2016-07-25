@@ -108,7 +108,6 @@ kubectl delete ns nsolid --cascade
 
 ```bash
 cd sample-app
-npm install
 docker build -t sample-app:v1 .
 kubectl create -f sample-app.service.yml
 kubectl create -f sample-app.deployment.yml
