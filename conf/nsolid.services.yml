@@ -5,44 +5,44 @@ items:
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-registry
+      name: registry
     spec:
       ports:
-        - port: 2379
+        - port: 80
           targetPort: clientport
       selector:
-        app: nsolid-registry
+        app: registry
   - apiVersion: v1
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-proxy
+      name: hub
     spec:
       sessionAffinity: None
       ports:
-        - port: 9000
-          targetPort: proxy
+        - port: 80
+          targetPort: hub
       selector:
-        app: nsolid-proxy
+        app: hub
   - apiVersion: v1
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-console
+      name: console
     spec:
       sessionAffinity: ClientIP
       ports:
         - port: 80
           targetPort: console
       selector:
-        app: nsolid-console
+        app: console
   - apiVersion: v1
     kind: Service
     metadata:
       namespace: nsolid
-      name: nsolid-secure-proxy
+      name: nginx-secure-proxy
       labels:
-        app: nsolid-secure-proxy
+        app: nginx-secure-proxy
     spec:
       type: LoadBalancer
       sessionAffinity: ClientIP
@@ -56,4 +56,4 @@ items:
           port: 443
           targetPort: 443
       selector:
-        app: nsolid-secure-proxy
+        app: nginx-secure-proxy

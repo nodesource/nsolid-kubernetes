@@ -1,24 +1,24 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: myapp
+  name: sample-app
   labels:
-    app: myapp
+    app: sample-app
 spec:
   replicas: 3
   template:
     metadata:
       labels:
-        app: myapp
+        app: sample-app
     spec:
       containers:
-        - name: myapp
-          image: myapp:v1
+        - name: sample-app
+          image: sample-app:v1
           env:
             - name: NSOLID_APPNAME
-              value: myapp
+              value: sample-app
             - name: NSOLID_HUB
-              value: "nsolid-registry.nsolid:2379"
+              value: "registry.nsolid:80"
             - name: NSOLID_SOCKET
               value: "8000"
             - name: NSOLID_TAGS
@@ -27,6 +27,6 @@ spec:
               value: "4444"
           ports:
             - containerPort: 4444
-              name: myapp
+              name: sample-app
             - containerPort: 8000
               name: nsolid

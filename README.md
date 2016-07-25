@@ -9,7 +9,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 - [Quickstart](#a2)
     - [Access N|Solid Dashboard](#a3)
     - [Uninstall N|Solid](#a4)
-- [Deploying your App with N|Solid](#a5)
+- [Deploy Sample App with N|Solid](#a5)
 - [Production Install](#a6)
     - [N|Solid namespace](#a7)
     - [nginx SSL certificates](#a8)
@@ -18,8 +18,21 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Configmap object for settings](#a11)
     - [Define Services](#a12)
     - [GCE persistent disks](#a13)
-    - [AWD persistent disks](#a14)
-    
+    - [AWS persistent disks](#a14)
+- [Debugging / Troubleshooting](#a15)
+    - [Configuring Apps for N|Solid with kubernetes](#a16)
+        - [Buiding an N|Solid app](#a17)
+            - [Docker](#a18)
+            - [Kubernetes](#a19)
+        - [Accessing your App](#a20)
+    - [Accessing N|Solid kubernetes objects](#a21)
+        - [Setting `nsolid` as the default namespace](#a22)
+    - [Running `nsolid-cli`](#a23)
+    - [minikube](#a24)
+        - [Setting ENV for cluster](#a25)
+        - [Service Discovery](#a26)
+    - [Common Gotchas](#a27)
+- [License & Copyright](#a28)
 
 <a name="a1"/>
 ## Installing kubernetes
@@ -40,18 +53,29 @@ Make sure your `kubectl` is pointing to your active cluster.
 ./install
 ```
 
+This command will install the N|Solid Console, Hub, and a secure HTTPS proxy to the `nsolid` namespace.
+
+It can take a little while for Kubernetes to download the N|Solid Docker images.  You can verify
+that they are active by running:
+
+```
+kubectl --namespace=nsolid get pods
+```
+
+When all four pods (console, hub, nginx-secure-proxy, and registry) have a status of 'Running', you may continue to access the N|Solid Dashboard.
+
 <a name="a3"/>
 ### Access N|Solid Dashboard
+
+#### Secure credentials
 
 * Default username: `nsolid`
 * Default password: `demo`
 
-**NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
-
 #### With `minikube`
 
 ```bash
-printf "\nhttps://$(minikube ip):$(kubectl get svc nsolid-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
+printf "\nhttps://$(minikube ip):$(kubectl get svc nginx-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
 ```
 
 or
@@ -59,10 +83,16 @@ or
 #### Cloud Deployment:
 
 ```bash
-kubectl get svc nsolid-secure-proxy --namespace=nsolid
+kubectl get svc nginx-secure-proxy --namespace=nsolid
 ```
 
 Open `EXTERNAL-IP`
+
+**NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
+
+N|Solid is free for non-production use, but does require a license key.  Request one from the Console welcome screen.  For more information, see the [N|Solid Quickstart](https://docs.nodesource.com/nsolid/1.4/docs/quickstart).
+
+![Welcome Screen](./docs/images/welcome.png)
 
 <a name="a4"/>
 ### Uninstall N|Solid from kubernetes cluster
@@ -72,26 +102,22 @@ kubectl delete ns nsolid --cascade
 ```
 
 <a name="a5"/>
-## Deploying your App with N|Solid
+## Deploy Sample App with N|Solid
 
 ### Quick Start
 
 ```bash
-cd myapp
-docker build -t myapp:v1 .
-kubectl create -f myapp.service.yml
-kubectl create -f myapp.deployment.yml
+cd sample-app
+docker build -t sample-app:v1 .
+kubectl create -f sample-app.service.yml
+kubectl create -f sample-app.deployment.yml
 ```
 
-**NOTE:** container image in `myapp.deployment.yml` assumes `myapp:v1` docker file. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
+**NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker image. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
 
-### Scaling
+If you are working in a cloud environment, you will need to push the sample-app to a public Docker registry
+like [Dockerhub](https://dockerhub.com) or [Quay.io](https://quay.io), and update the sample-app Deployment file.
 
-Currently 3 instances of `myapp` are running. We can increase the number of replicas and the service will automatically load balance. N|Solid will automatically show an increase number of instances as well.
-
-```bash
-$ kubectl scale rc myapp --replicas=4
-```
 
 <a name="a6"/>
 ## Production Install
@@ -136,41 +162,186 @@ kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 <a name="a12"/>
 #### Define the services
 
-```
+```bash
 kubectl create -f conf/nsolid.services.yml
 ```
 
+#### Create persistent disks
+
+N|Solid components require persistent storage.  Kubernetes does not (yet!)
+automatically handle provisioning of disks consistently across all cloud providers.
+As such, you will need to manually create the persistent volumes.
+
 <a name="a13"/>
-### GCE
+##### On Google Cloud
 
-Make persistent disks
+Make sure the zone matches the zone you brought up your cluster in!
 
-```bash
-gcloud compute disks create --size=10GB nsolid-console
-gcloud compute disks create --size=10GB nsolid-registry
 ```
-
-
-#### Deploy N|Solid components
-
-```bash
-kubectl create -f conf/nsolid.GCE.yml --record
+gcloud compute disks create --size 10GB nsolid-registry
+gcloud compute disks create --size 10GB nsolid-console
 ```
-
-**Note:** Assumes disk names are named `nsolid-console` and `nsolid-registry`
 
 <a name="a14"/>
-### AWS
+##### On AWS
 
-Make persistent disks
+We need to create our disks and then update the volumeIds in conf/nsolid.persistent.aws.yml.
 
+Make sure the zone matches the zone you brought up your cluster in!
+
+```
+aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
+aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
+```
+
+
+#### Configure Kubernetes to utilize the newly created persistent volumes
+
+##### GCE
 ```bash
-aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
-aws ec2 create-volume --region {region} --availability-zone {zone} --size 10 --volume-type gp2
+kubectl create -f conf/nsolid.persistent.gce.yml
+```
+
+##### AWS
+```bash
+kubectl create -f conf/nsolid.persistent.aws.yml
 ```
 
 #### Deploy N|Solid components
 
 ```bash
-kubectl create -f conf/nsolid.AWS.yml --record
+kubectl create -f conf/nsolid.cloud.yml
 ```
+
+<a name="a15"/>
+## Debugging / Troubleshooting
+
+<a name="a16"/>
+### Configuring Apps for N|Solid with kubernetes
+
+<a name="a17"/>
+#### Buiding an N|Solid app
+
+<a name="a18"/>
+##### Docker
+
+Make sure your docker image is build on top of `nodesource/nsolid:v1.4.0`.
+
+```dockerfile
+FROM nodesource/nsolid:v1.4.0
+```
+
+<a name="a19"/>
+##### Kubernetes
+
+When defining your application make sure the following `ENV` are set.
+
+```yaml
+  env:
+    - name: NSOLID_APPNAME
+      value: sample-app
+    - name: NSOLID_HUB
+      value: "registry.nsolid:80"
+    - name: NSOLID_SOCKET
+      value: "8000"
+```
+
+**NOTE:** `NSOLID_SOCKET` needs to be set so it isn't automatically assigned. It also needs to be exposed via the `ports` pod options so the N|Solid hub can communicate.
+
+Optional flags:
+
+```yaml
+  env:
+    - name: NSOLID_TAGS
+      value: "nsolid-v1.4.0,staging"
+```
+
+A comma seperate list of tags that can be used to filter processes in the N|Solid console.
+
+<a name="a20"/>
+#### Accessing your App
+
+```bash
+kubectl get svc {service-name}
+```
+
+The `EXTERNAL-IP` will access the application.
+
+
+<a name="a21"/>
+### Accessing N|Solid kubernetes objects
+
+Make sure you use the `--namespace=nsolid` flag on all `kubectl` commands.
+
+<a name="a22"/>
+#### Setting `nsolid` as the default namespace
+
+```bash
+kubectl config current-context // outputs current context
+kubectl config set-context {$context} --namespace=nsolid // make 'nsolid` the default namespace
+kubectl config set-context {$context} --namespace=default // revert to default
+```
+
+<a name="a23"/>
+### Running `nsolid-cli`
+
+**Verify CLI**:
+
+```bash
+kubectl exec {pod-name} -- nsolid-cli --hub=hub:80 ping
+```
+
+See [N|Solid cli docs](https://docs.nodesource.com/nsolid/1.4/docs/using-the-cli) for more info.
+
+
+<a name="a24"/>
+### minikube
+
+Minikube is a bit different then a normal kubernetes install. The DNS service isn't running so discovering is a bit more involved. IP addresses are not dynamically assigned, instead we must use the host ports the service is mapped to.
+
+<a name="a25"/>
+#### Setting ENV for cluster
+
+If your doing a lot of work with docker and minikube it is recommended that you run the following:
+
+```bash
+eval $(minikube docker-env)
+```
+
+<a name="a26"/>
+### Service discovery
+
+Get the kubernetes cluster ip address:
+
+```bash
+minikube ip
+```
+
+To get the service port:
+
+```bash
+kubectl get svc {$service-name} --output='jsonpath={.spec.ports[0].nodePort}'
+```
+
+**Note:** If your service exposes multiple ports you may want to examine with `--output='json'` instead.
+
+
+<a name="a27"/>
+### Common Gotchas
+
+If you get the following message when trying to run `docker build` or communicating with the kubernetes api.
+
+```bash
+Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
+```
+
+Export the `DOCKER_API_VERSION` to match the server API version.
+
+```bash
+export DOCKER_API_VERSION=1.23
+```
+
+<a name="a28" />
+## License & Copyright
+
+**nsolid-kubernetes** is Copyright (c) 2016 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
