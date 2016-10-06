@@ -18,6 +18,17 @@ items:
           containers:
           - image: nodesource/nsolid-registry
             name: registry
+            args:
+              - "-name"
+              - "etcd0"
+              - "-listen-client-urls"
+              - "http://0.0.0.0:4001,http://0.0.0.0:2379"
+              - "-advertise-client-urls"
+              - "http://0.0.0.0:4001,http://0.0.0.0:2379"
+              - "-initial-cluster-state"
+              - "new"
+              - "--data-dir"
+              - /var/lib/nsolid/registry
             ports:
             - containerPort: 2380
               name: serverport
