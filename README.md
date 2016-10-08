@@ -1,4 +1,4 @@
-![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)
+[![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)](https://nodesource.com/products/nsolid)
 
 ## Overview
 
