@@ -87,6 +87,7 @@ items:
               args:
                 - --hub=http://hub:80
                 - --storage=/var/lib/nsolid/console
+                - --config=/var/lib/nsolid/console/config
               ports:
                 - containerPort: 3000
                   name: console
