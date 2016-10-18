@@ -5,25 +5,24 @@ items:
     kind: Service
     metadata:
       namespace: nsolid
-      name: registry
-    spec:
-      ports:
-        - port: 80
-          targetPort: clientport
-      selector:
-        app: registry
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      namespace: nsolid
-      name: hub
+      name: storage
     spec:
       sessionAffinity: None
       ports:
-        - port: 80
-          targetPort: hub
+        - name: api
+          port: 4000
+          targetPort: api
+        - name: command
+          port: 9001
+          targetPort: command
+        - name: data
+          port: 9002
+          targetPort: data
+        - name: bulk
+          port: 9003
+          targetPort: bulk
       selector:
-        app: hub
+        app: storage
   - apiVersion: v1
     kind: Service
     metadata:

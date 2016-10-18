@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:v1.4.0
+FROM nodesource/nsolid:argon
 
 RUN mkdir -p /usr/src/app
 
