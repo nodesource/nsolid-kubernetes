@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: sample-app
-          image: rosskukulinski/sample-app:rc102
+          image: rosskukulinski/sample-app:nsolid-v2.0.0
           env:
             - name: NSOLID_APPNAME
               value: sample-app

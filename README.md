@@ -225,10 +225,10 @@ kubectl create -f conf/nsolid.cloud.yml
 <a name="a18"/>
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid-boron:2.0`.
+Make sure your docker image is build on top of `nodesource/nsolid:boron-2.0.0`.
 
 ```dockerfile
-FROM nodesource/nsolid-boron:2.0
+FROM nodesource/nsolid:boron-2.0.0
 ```
 
 <a name="a19"/>
