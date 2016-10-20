@@ -92,8 +92,6 @@ Open `EXTERNAL-IP`
 
 **NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
 
-N|Solid is free for non-production use, but does require a license key.  Request one from the Console welcome screen.  For more information, see the [N|Solid Quickstart](https://docs.nodesource.com/nsolid/1.4/docs/quickstart).
-
 ![Welcome Screen](./docs/images/welcome.png)
 
 <a name="a4"/>
@@ -227,10 +225,10 @@ kubectl create -f conf/nsolid.cloud.yml
 <a name="a18"/>
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:v1.4.0`.
+Make sure your docker image is build on top of `nodesource/nsolid-boron:2.0`.
 
 ```dockerfile
-FROM nodesource/nsolid:v1.4.0
+FROM nodesource/nsolid-boron:2.0
 ```
 
 <a name="a19"/>
@@ -242,20 +240,20 @@ When defining your application make sure the following `ENV` are set.
   env:
     - name: NSOLID_APPNAME
       value: sample-app
-    - name: NSOLID_HUB
-      value: "registry.nsolid:80"
-    - name: NSOLID_SOCKET
-      value: "8000"
+    - name: NSOLID_COMMAND
+      value: "storage.nsolid:9001"
+    - name: NSOLID_DATA
+      value: "storage.nsolid:9002"
+    - name: NSOLID_BULK
+      value: "storage.nsolid:9003"
 ```
-
-**NOTE:** `NSOLID_SOCKET` needs to be set so it isn't automatically assigned. It also needs to be exposed via the `ports` pod options so the N|Solid hub can communicate.
 
 Optional flags:
 
 ```yaml
   env:
     - name: NSOLID_TAGS
-      value: "nsolid-v1.4.0,staging"
+      value: "nsolid-boron-v2.0.0,staging"
 ```
 
 A comma seperate list of tags that can be used to filter processes in the N|Solid console.
@@ -293,7 +291,7 @@ kubectl config set-context {$context} --namespace=default // revert to default
 kubectl exec {pod-name} -- nsolid-cli --hub=hub:80 ping
 ```
 
-See [N|Solid cli docs](https://docs.nodesource.com/nsolid/1.4/docs/using-the-cli) for more info.
+See [N|Solid cli docs](https://docs.nodesource.com/nsolid/2.0/docs/using-the-cli) for more info.
 
 
 <a name="a24"/>
