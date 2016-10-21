@@ -6,34 +6,27 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: registry
-      name: registry
+        app: storage
+      name: storage
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: registry
+            app: storage
         spec:
           containers:
-          - image: nodesource/nsolid-registry
-            name: registry
-            args:
-              - "-name"
-              - "etcd0"
-              - "-listen-client-urls"
-              - "http://0.0.0.0:4001,http://0.0.0.0:2379"
-              - "-advertise-client-urls"
-              - "http://0.0.0.0:4001,http://0.0.0.0:2379"
-              - "-initial-cluster-state"
-              - "new"
-              - "--data-dir"
-              - /var/lib/nsolid/registry
+          - image: nodesource/nsolid-storage:1.0.0
+            name: storage
             ports:
-            - containerPort: 2380
-              name: serverport
-            - containerPort: 2379
-              name: clientport
+            - containerPort: 4000
+              name: api
+            - containerPort: 9001
+              name: command
+            - containerPort: 9002
+              name: data
+            - containerPort: 9003
+              name: bulk
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
@@ -50,38 +43,13 @@ items:
         spec:
           containers:
             - name: console
-              image: "nodesource/nsolid-console:v1.7.3"
-              args:
-                - --hub=http://hub:80
+              image: nodesource/nsolid-console:2.0.0
+              env:
+              - name: NSOLID_CONSOLE_STORAGE_URL
+                value: https://storage:4000
               ports:
                 - containerPort: 3000
                   name: console
-                - containerPort: 8000
-                  name: nsolid
-  - apiVersion: extensions/v1beta1
-    kind: Deployment
-    metadata:
-      namespace: nsolid
-      name: hub
-      labels:
-        app: hub
-    spec:
-      replicas: 1
-      template:
-        metadata:
-          labels:
-            app: hub
-        spec:
-          containers:
-            - name: hub
-              image: "nodesource/nsolid-hub:v4.0.0"
-              args:
-                - --registry=registry:80
-              ports:
-                - containerPort: 9000
-                  name: hub
-                - containerPort: 8000
-                  name: nsolid
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:

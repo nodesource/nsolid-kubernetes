@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:v1.4.0
+FROM nodesource/nsolid:boron-2.0.0
 
 RUN mkdir -p /usr/src/app
 
