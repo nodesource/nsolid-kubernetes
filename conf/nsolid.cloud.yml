@@ -34,6 +34,8 @@ items:
           - image: nodesource/nsolid-storage:1.0.0
             name: storage
             env:
+            - name: NSOLID_STORAGE_NOTIFICATION_CONSOLE_URL
+              value: http://console:3000
             - name: NSOLID_STORAGE_DATA_DIR
               value: /var/lib/nsolid/storage/data
             - name: NSOLID_STORAGE_LOGS_INFLUX
