@@ -18,6 +18,11 @@ items:
           containers:
           - image: nodesource/nsolid-storage:1.0.0
             name: storage
+            env:
+            - name: NSOLID_STORAGE_DATA_DIR
+              value: /var/lib/nsolid/storage/data
+            - name: NSOLID_STORAGE_LOGS_INFLUX
+              value: /var/lib/nsolid/storage/influxdb.log
             ports:
             - containerPort: 4000
               name: api

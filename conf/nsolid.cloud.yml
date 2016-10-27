@@ -33,6 +33,11 @@ items:
           containers:
           - image: nodesource/nsolid-storage:1.0.0
             name: storage
+            env:
+            - name: NSOLID_STORAGE_DATA_DIR
+              value: /var/lib/nsolid/storage/data
+            - name: NSOLID_STORAGE_LOGS_INFLUX
+              value: /var/lib/nsolid/storage/influxdb.log
             ports:
             - containerPort: 4000
               name: api
@@ -42,6 +47,13 @@ items:
               name: data
             - containerPort: 9003
               name: bulk
+            volumeMounts:
+            - name: nsolid-storage
+              mountPath: /var/lib/nsolid
+        volumes:
+        - name: nsolid-storage
+          peristentVolumeClaim:
+            claimName: nsolid-storage
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
