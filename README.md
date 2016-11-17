@@ -223,10 +223,10 @@ kubectl create -f conf/nsolid.cloud.yml
 <a name="a18"/>
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:boron-2.0.0`.
+Make sure your docker image is build on top of `nodesource/nsolid:boron-2.0.1`.
 
 ```dockerfile
-FROM nodesource/nsolid:boron-2.0.0
+FROM nodesource/nsolid:boron-2.0.1
 ```
 
 <a name="a19"/>
@@ -251,7 +251,7 @@ Optional flags:
 ```yaml
   env:
     - name: NSOLID_TAGS
-      value: "nsolid-boron-v2.0.0,staging"
+      value: "nsolid-boron-v2.0.1,staging"
 ```
 
 A comma seperate list of tags that can be used to filter processes in the N|Solid console.

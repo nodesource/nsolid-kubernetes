@@ -16,7 +16,7 @@ items:
             app: storage
         spec:
           containers:
-          - image: nodesource/nsolid-storage:1.0.0
+          - image: nodesource/nsolid-storage:boron-2.0.1
             name: storage
             env:
             - name: NSOLID_STORAGE_NOTIFICATION_CONSOLE_URL
@@ -50,7 +50,7 @@ items:
         spec:
           containers:
             - name: console
-              image: nodesource/nsolid-console:2.0.0
+              image: nodesource/nsolid-console:boron-2.0.1
               env:
               - name: NSOLID_CONSOLE_STORAGE_URL
                 value: https://storage:4000
