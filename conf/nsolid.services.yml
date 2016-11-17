@@ -49,10 +49,10 @@ items:
         - name: http
           protocol: TCP
           port: 80
-          targetPort: 80
+          targetPort: 10080
         - name: https
           protocol: TCP
           port: 443
-          targetPort: 443
+          targetPort: 10443
       selector:
         app: nginx-secure-proxy

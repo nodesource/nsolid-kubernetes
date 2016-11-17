@@ -94,13 +94,13 @@ items:
             app: nginx-secure-proxy
         spec:
           containers:
-          - image: nginx
+          - image: nodesource/nsolid-nginx:stable
             imagePullPolicy: Always
             name: nginx-secure-proxy
             ports:
-            - containerPort: 80
+            - containerPort: 10080
               protocol: TCP
-            - containerPort: 443
+            - containerPort: 10443
               protocol: TCP
             - containerPort: 8080
               protocol: TCP
