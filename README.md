@@ -1,4 +1,4 @@
-![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)
++[![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)](https://nodesource.com/products/nsolid)
 
 ## Overview
 
@@ -178,8 +178,7 @@ As such, you will need to manually create the persistent volumes.
 Make sure the zone matches the zone you brought up your cluster in!
 
 ```
-gcloud compute disks create --size 10GB nsolid-registry
-gcloud compute disks create --size 10GB nsolid-console
+gcloud compute disks create --size 10GB nsolid-storage
 ```
 
 <a name="a14"/>
@@ -190,7 +189,6 @@ We need to create our disks and then update the volumeIds in conf/nsolid.persist
 Make sure the zone matches the zone you brought up your cluster in!
 
 ```
-aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
 aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
 ```
 
@@ -225,10 +223,10 @@ kubectl create -f conf/nsolid.cloud.yml
 <a name="a18"/>
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:boron-2.0.0`.
+Make sure your docker image is build on top of `nodesource/nsolid:boron-2.0.1`.
 
 ```dockerfile
-FROM nodesource/nsolid:boron-2.0.0
+FROM nodesource/nsolid:boron-2.0.1
 ```
 
 <a name="a19"/>
@@ -253,7 +251,7 @@ Optional flags:
 ```yaml
   env:
     - name: NSOLID_TAGS
-      value: "nsolid-boron-v2.0.0,staging"
+      value: "nsolid-boron-v2.0.1,staging"
 ```
 
 A comma seperate list of tags that can be used to filter processes in the N|Solid console.
@@ -278,7 +276,7 @@ Make sure you use the `--namespace=nsolid` flag on all `kubectl` commands.
 
 ```bash
 kubectl config current-context // outputs current context
-kubectl config set-context {$context} --namespace=nsolid // make 'nsolid` the default namespace
+kubectl config set-context {$context} --namespace=nsolid // make 'nsolid' the default namespace
 kubectl config set-context {$context} --namespace=default // revert to default
 ```
 

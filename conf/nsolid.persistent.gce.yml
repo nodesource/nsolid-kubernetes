@@ -4,24 +4,12 @@
    - apiVersion: v1
      kind: PersistentVolume
      metadata:
-       name: nsolid-registry
+       name: nsolid-storage
      spec:
       capacity:
         storage: 10Gi
       accessModes:
         - ReadWriteOnce
       gcePersistentDisk:
-        pdName: "nsolid-registry"
-        fsType: "ext4"
-   - apiVersion: v1
-     kind: PersistentVolume
-     metadata:
-       name: nsolid-console
-     spec:
-      capacity:
-        storage: 10Gi
-      accessModes:
-        - ReadWriteOnce
-      gcePersistentDisk:
-        pdName: "nsolid-console"
+        pdName: "nsolid-storage"
         fsType: "ext4"
