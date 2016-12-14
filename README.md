@@ -8,6 +8,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 
 ### Table of Contents
 - [Installing kubernetes](#a1)
+- [Upgrading](#a1-1)
 - [Quickstart](#a2)
     - [Access N|Solid Dashboard](#a3)
     - [Uninstall N|Solid](#a4)
@@ -45,6 +46,25 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 * [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/coreos/azure/) - Microsoft Azure (Weave-based)
 * [kubernetes on Azure](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure (Flannel-based)
+
+<a name="a1-1"/>
+## Upgrading
+
+### local
+
+Existing `nsolid-kubernetes` installs can be upgraded running the following command:
+
+```bash
+kubectl apply -f conf/nsolid.quickstart.yml
+```
+
+### Cloud
+
+If deployed to a cloud (AWS or GCP) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml` 
+
+```bash
+kubectl apply -f conf/nsolid.cloud.yml
+```
 
 <a name="a2"/>
 ## Quickstart
