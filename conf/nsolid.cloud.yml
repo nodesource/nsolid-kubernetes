@@ -31,7 +31,7 @@ items:
             app: storage
         spec:
           containers:
-          - image: nodesource/nsolid-storage:boron-2.1.2
+          - image: nodesource/nsolid-storage:boron-2.1.2-kubernetes
             name: storage
             env:
             - name: NSOLID_STORAGE_NOTIFICATION_CONSOLE_URL
@@ -52,10 +52,10 @@ items:
             volumeMounts:
             - name: nsolid-storage
               mountPath: /var/lib/nsolid
-        volumes:
-        - name: nsolid-storage
-          peristentVolumeClaim:
-            claimName: nsolid-storage
+          volumes:
+          - name: nsolid-storage
+            persistentVolumeClaim:
+              claimName: nsolid-storage
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:
