@@ -22,6 +22,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Define Services](#a12)
     - [GCE persistent disks](#a13)
     - [AWS persistent disks](#a14)
+    - [Azure persistent disks](#a29)
 - [Debugging / Troubleshooting](#a15)
     - [Configuring Apps for N|Solid with kubernetes](#a16)
         - [Buiding an N|Solid app](#a17)
@@ -211,6 +212,16 @@ Make sure the zone matches the zone you brought up your cluster in!
 aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
 ```
 
+<a name="a29"/>
+##### On Azure
+
+We need to deploy a default [`StorageClass`](https://kubernetes.io/docs/user-guide/persistent-volumes/#azure-disk) object that will automatically provision new `PersistentVolume` instances (backed by an Azure data disk) for all `PersistentVolumeClaim` objects that are bound to pods (e.g. the `nsolid.storage` pod).
+
+```shell
+kubectl create -f https://raw.githubusercontent.com/Azure/acs-engine/master/parts/kubernetesmasteraddons-default-storage-class.yaml 
+```
+
+> Once the Azure Container Service is updated to run Kubernetes `v1.5.3` by default, the above command won't even be neccessary.
 
 #### Configure Kubernetes to utilize the newly created persistent volumes
 
@@ -223,6 +234,10 @@ kubectl create -f conf/nsolid.persistent.gce.yml
 ```bash
 kubectl create -f conf/nsolid.persistent.aws.yml
 ```
+
+##### Azure
+
+There's no need to explicitly create a `PersistentVolume` object, since the `StorageClass` that was previously created will automatically provision them as needed.
 
 #### Deploy N|Solid components
 
