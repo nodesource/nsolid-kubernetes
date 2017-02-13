@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: sample-app
-          image: rosskukulinski/sample-app:nsolid-v2.0.0
+          image: "{username}/{image}:{tag}"
           env:
             - name: NSOLID_APPNAME
               value: sample-app
@@ -23,8 +23,24 @@ spec:
               value: "storage.nsolid:9002"
             - name: NSOLID_BULK
               value: "storage.nsolid:9003"
+            - name: K8_NODE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: K8_POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: K8_NS
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: K8_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: NSOLID_TAGS
-              value: "nsolid-v2.0.0"
+              value: "nsolid-v2.1.2, $(K8_NODE), $(K8_POD), NS:$(K8_NS), $(K8_IP)"
             - name: PORT
               value: "4444"
           ports:
