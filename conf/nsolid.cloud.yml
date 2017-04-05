@@ -30,8 +30,10 @@ items:
           labels:
             app: storage
         spec:
+          securityContext:
+            fsGroup: 16753
           containers:
-          - image: nodesource/nsolid-storage:boron-2.1.2-kubernetes
+          - image: nodesource/nsolid-storage:boron-latest
             name: storage
             env:
             - name: NSOLID_STORAGE_NOTIFICATION_CONSOLE_URL
@@ -72,7 +74,7 @@ items:
         spec:
           containers:
             - name: console
-              image: nodesource/nsolid-console:boron-2.1.2
+              image: nodesource/nsolid-console:boron-latest
               env:
               - name: NSOLID_CONSOLE_STORAGE_URL
                 value: https://storage:4000
