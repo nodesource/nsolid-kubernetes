@@ -78,7 +78,7 @@ Make sure your `kubectl` is pointing to your active cluster.
 ./install
 ```
 
-This command will install the N|Solid Console, Hub, and a secure HTTPS proxy to the `nsolid` namespace.
+This command will install the N|Solid Console, N|Solid Storage, and a secure HTTPS proxy to the `nsolid` namespace.
 
 It can take a little while for Kubernetes to download the N|Solid Docker images.  You can verify
 that they are active by running:
@@ -87,7 +87,7 @@ that they are active by running:
 kubectl --namespace=nsolid get pods
 ```
 
-When all four pods (console, hub, nginx-secure-proxy, and registry) have a status of 'Running', you may continue to access the N|Solid Dashboard.
+When all three pods (console, storage, and nginx-secure-proxy) have a status of 'Running', you may continue to access the N|Solid Console.
 
 <a name="a3"/>
 
@@ -406,4 +406,4 @@ export DOCKER_API_VERSION=1.23
 
 ## License & Copyright
 
-**nsolid-kubernetes** is Copyright (c) 2016 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
+**nsolid-kubernetes** is Copyright (c) 2017 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
