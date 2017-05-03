@@ -62,7 +62,7 @@ kubectl apply -f conf/nsolid.quickstart.yml
 
 ### Cloud
 
-If deployed to a cloud (AWS or GCP) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml` 
+If deployed to a cloud (AWS, Azure, GCP) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml` 
 
 ```bash
 kubectl apply -f conf/nsolid.cloud.yml
@@ -142,14 +142,14 @@ kubectl create -f sample-app.deployment.yml
 **NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker image. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
 
 If you are working in a cloud environment, you will need to push the sample-app to a public Docker registry
-like [Dockerhub](https://dockerhub.com), [Quay.io](https://quay.io) or the [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), and update the sample-app Deployment file.
+like [Docker Hub](https://hub.docker.com/), [Quay.io](https://quay.io) or the [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), and update the sample-app Deployment file.
 
 
 <a name="a6"/>
 
 ## Production Install
 
-**NOTE:** Assumes kubectl is configured and pointed at your kubernetes cluster properly.
+**NOTE:** Assumes kubectl is configured and pointed at your Kubernetes cluster properly.
 
 <a name="a7"/>
 
@@ -261,11 +261,11 @@ kubectl create -f conf/nsolid.cloud.yml
 
 <a name="a16"/>
 
-### Configuring Apps for N|Solid with kubernetes
+### Configuring Apps for N|Solid with Kubernetes
 
 <a name="a17"/>
 
-#### Buiding an N|Solid app
+#### Building an N|Solid app
 
 <a name="a18"/>
 
@@ -339,17 +339,17 @@ kubectl config set-context {$context} --namespace=default // revert to default
 **Verify CLI**:
 
 ```bash
-kubectl exec {pod-name} -- nsolid-cli --hub=hub:80 ping
+kubectl exec {pod-name} -- nsolid-cli --remote=storage.nsolid:4000 ping
 ```
 
-See [N|Solid cli docs](https://docs.nodesource.com/nsolid/2.0/docs/using-the-cli) for more info.
+See [N|Solid cli docs](https://docs.nodesource.com/nsolid/2.1/docs#using-the-cli) for more info.
 
 
 <a name="a24"/>
 
 ### minikube
 
-Minikube is a bit different then a normal kubernetes install. The DNS service isn't running so discovering is a bit more involved. IP addresses are not dynamically assigned, instead we must use the host ports the service is mapped to.
+Minikube is a bit different then a normal Kubernetes install. The DNS service isn't running so discovering is a bit more involved. IP addresses are not dynamically assigned, instead we must use the host ports the service is mapped to.
 
 <a name="a25"/>
 
