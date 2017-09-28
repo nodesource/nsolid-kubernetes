@@ -25,7 +25,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Azure persistent disks](#a29)
 - [Debugging / Troubleshooting](#a15)
     - [Configuring Apps for N|Solid with kubernetes](#a16)
-        - [Buiding an N|Solid app](#a17)
+        - [Building an N|Solid app](#a17)
             - [Docker](#a18)
             - [Kubernetes](#a19)
         - [Accessing your App](#a20)
