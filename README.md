@@ -114,7 +114,7 @@ or
 kubectl get svc nginx-secure-proxy --namespace=nsolid
 ```
 
-Open `EXTERNAL-IP`.  `If using Bluemix _Lite_ cluster, get EXTERNAL-IP` [this way](./docs/misc/bluemix-external-ip.md).
+Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way](./docs/misc/bluemix-external-ip.md).
 
 **NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
 
