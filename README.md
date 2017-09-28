@@ -334,7 +334,8 @@ A comma seperate list of tags that can be used to filter processes in the N|Soli
 kubectl get svc {service-name}
 ```
 
-The `EXTERNAL-IP` will access the application.
+The `EXTERNAL-IP` will access the application.  
+Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way](./docs/misc/bluemix-external-ip.md).
 
 
 <a name="a21"/>

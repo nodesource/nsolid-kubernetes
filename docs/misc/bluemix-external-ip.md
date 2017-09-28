@@ -6,6 +6,7 @@ Linux/OSX:
 ```bash
 printf "\nhttps://$(bx cs workers mycluster | awk '{ split($2,t,"""Public"""); printf """%s+""", t[1] }' | awk '{ split($1,ip,"""+"""); print ip[3] }'):$(kubectl get svc nginx-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
 ```
+Note: if using this command for an application,  replace "nginx-secure-proxy" in the command text with the {service-name} of the application.
 
 Windows: 
 
@@ -23,6 +24,8 @@ kube-hou02-pa2ccba8cbbcd243b39dd79fc0a6ad24bb-w1   184.172.236.206   10.76.114.2
 ```bash
 kubectl get svc nginx-secure-proxy --namespace=nsolid 
 ``` 
+Note: if using this command for an application,  replace "nginx-secure-proxy" in the command text with the {service-name} of the application.
+
 The preceding kubectl command displays the service ports like this example: 
 ```bash
 NAME                 CLUSTER-IP   EXTERNAL-IP   PORT(S)                      AGE
