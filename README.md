@@ -47,6 +47,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
 * [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
 * [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
 * [kubernetes on ACS](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure Container Service
+* [kubernetes on Bluemix](./docs/install/bluemix-setup.md) - IBM Cloud Container Service
 
 <a name="a1-1"/>
 
@@ -62,7 +63,7 @@ kubectl apply -f conf/nsolid.quickstart.yml
 
 ### Cloud
 
-If deployed to a cloud (AWS, Azure, GCP) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml` 
+If deployed to a cloud (AWS, Azure, GCP, Bluemix) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml`
 
 ```bash
 kubectl apply -f conf/nsolid.cloud.yml
@@ -72,11 +73,12 @@ kubectl apply -f conf/nsolid.cloud.yml
 
 ## Quickstart
 
-Make sure your `kubectl` is pointing to your active cluster.
-
 ```bash
 ./install
 ```
+Notes:
+1. Make sure your `kubectl` is pointing to your active cluster.
+1. If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running ./install.
 
 This command will install the N|Solid Console, N|Solid Storage, and a secure HTTPS proxy to the `nsolid` namespace.
 
@@ -112,7 +114,7 @@ or
 kubectl get svc nginx-secure-proxy --namespace=nsolid
 ```
 
-Open `EXTERNAL-IP`
+Open `EXTERNAL-IP`.  `If using Bluemix _Lite_ cluster, get EXTERNAL-IP` [this way](./docs/misc/bluemix-external-ip.md).
 
 **NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
 
@@ -139,10 +141,17 @@ kubectl create -f sample-app.service.yml
 kubectl create -f sample-app.deployment.yml
 ```
 
-**NOTE:** container image in `sample-app.deployment.yml` assumes `sample-app:v1` docker image. This will work if your using `minikube` and ran `eval $(minikube docker-env)`.
+**NOTE:** the container image in `sample-app.deployment.yml` must be set to match your docker image name. E.g. if you are using `minikube` and ran `eval $(minikube docker-env)`, set the image to:
+
+```bash
+    spec:
+      containers:
+        - name: sample-app
+          image: sample-app:v1
+```
 
 If you are working in a cloud environment, you will need to push the sample-app to a public Docker registry
-like [Docker Hub](https://hub.docker.com/), [Quay.io](https://quay.io) or the [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), and update the sample-app Deployment file.
+like [Docker Hub](https://hub.docker.com/), [Quay.io](https://quay.io), the [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), or the [IBM Bluemix Container Registry](https://console.bluemix.net/docs/services/Registry/registry_images_.html#registry_images_), and update the sample-app Deployment file.
 
 
 <a name="a6"/>
@@ -199,6 +208,8 @@ kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 kubectl create -f conf/nsolid.services.yml
 ```
 
+Note: If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running kubectl create.
+
 #### Create persistent disks
 
 N|Solid components require persistent storage.  Kubernetes does not (yet!)
@@ -233,6 +244,11 @@ aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
 
 There's no need to explicitly create a persistent disk, since the Azure Container Service provides a default `StorageClass`, which will dynamically create them as needed (e.g. when a `Pod` includes a `PersistentVolumeClaim`).
 
+##### On Bluemix
+
+There's no need to explicitly create a persistent disk, since the Bluemix Container Service provides a default `StorageClass`, which will dynamically create them as needed (e.g. when a `Pod` includes a `PersistentVolumeClaim`).
+
+
 #### Configure Kubernetes to utilize the newly created persistent volumes
 
 ##### GCE
@@ -248,6 +264,11 @@ kubectl create -f conf/nsolid.persistent.aws.yml
 ##### Azure
 
 There's no need to explicitly create a `PersistentVolume` object, since they will be dynamically provisioned by the default `StorageClass`.
+
+##### Bluemix
+
+There's no need to explicitly create a `PersistentVolume` object, since they will be dynamically provisioned by the default `StorageClass`.
+
 
 #### Deploy N|Solid components
 
