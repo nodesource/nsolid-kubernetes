@@ -23,6 +23,7 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [GCE persistent disks](#a13)
     - [AWS persistent disks](#a14)
     - [Azure persistent disks](#a29)
+    - [Bluemix persistent disks](#a30)
 - [Debugging / Troubleshooting](#a15)
     - [Configuring Apps for N|Solid with kubernetes](#a16)
         - [Building an N|Solid app](#a17)
@@ -243,6 +244,8 @@ aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
 ##### On Azure
 
 There's no need to explicitly create a persistent disk, since the Azure Container Service provides a default `StorageClass`, which will dynamically create them as needed (e.g. when a `Pod` includes a `PersistentVolumeClaim`).
+
+<a name="a30"/>
 
 ##### On Bluemix
 
