@@ -1,11 +1,11 @@
-## IBM Cloud Container Service
+## Kubernetes on IBM Cloud 
 
 ### Setup 
 
 #### Getting Started 
 
 Register and create a Lite Kubernetes cluster using the 
-[IBM Cloud Container Service](https://www.ibm.com/cloud-computing/bluemix/containers).
+[IBM Bluemix Container Service](https://www.ibm.com/cloud-computing/bluemix/containers).
 
 #### Install IBM Cloud Tools 
 
@@ -21,10 +21,10 @@ See: [https://github.com/IBM-Bluemix/ibm-cloud-developer-tools](https://github.c
 #### Address Kubernetes Cluster 
 
 1. login 
-```bash
-bx login -a api.ng.bluemix.net
-```
+    ```bash
+    bx login -a api.ng.bluemix.net
+    ```
 1. export KUBECONFIG
-```bash
-bx cs cluster-config mycluster
-```
+    ```bash
+    bx cs cluster-config mycluster
+    ```
