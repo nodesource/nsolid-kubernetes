@@ -5,7 +5,7 @@ items:
     kind: PersistentVolumeClaim
     metadata:
       namespace: nsolid
-      name: nsolid-storage
+      name: nsolid-console
     spec:
       accessModes:
         - ReadWriteOnce
@@ -21,27 +21,25 @@ items:
     metadata:
       namespace: nsolid
       labels:
-        app: storage
-      name: storage
+        app: console
+      name: console
     spec:
       replicas: 1
       template:
         metadata:
           labels:
-            app: storage
+            app: console
         spec:
           securityContext:
             fsGroup: 16753
           containers:
-          - image: nodesource/nsolid-storage:boron-latest
-            name: storage
+          - image: nodesource/nsolid-console:carbon-latest
+            name: console
             env:
-            - name: NSOLID_STORAGE_NOTIFICATION_CONSOLE_URL
-              value: http://console:6753
-            - name: NSOLID_STORAGE_DATA_DIR
-              value: /var/lib/nsolid/storage/data
-            - name: NSOLID_STORAGE_LOGS_INFLUX
-              value: /var/lib/nsolid/storage/influxdb.log
+            - name: NSOLID_CONSOLE_DATA_DIR
+              value: /var/lib/nsolid/console/data
+            - name: NSOLID_CONSOLE_LOGS_INFLUX
+              value: /var/lib/nsolid/console/influxdb.log
             ports:
             - containerPort: 4000
               name: api
@@ -51,36 +49,15 @@ items:
               name: data
             - containerPort: 9003
               name: bulk
+            - containerPort: 6753
+              name: console
             volumeMounts:
-            - name: nsolid-storage
+            - name: nsolid-console
               mountPath: /var/lib/nsolid
           volumes:
-          - name: nsolid-storage
+          - name: nsolid-console
             persistentVolumeClaim:
-              claimName: nsolid-storage
-  - apiVersion: extensions/v1beta1
-    kind: Deployment
-    metadata:
-      namespace: nsolid
-      name: console
-      labels:
-        app: console
-    spec:
-      replicas: 1
-      template:
-        metadata:
-          labels:
-            app: console
-        spec:
-          containers:
-            - name: console
-              image: nodesource/nsolid-console:boron-latest
-              env:
-              - name: NSOLID_CONSOLE_STORAGE_URL
-                value: https://storage:4000
-              ports:
-                - containerPort: 6753
-                  name: console
+              claimName: nsolid-console
   - apiVersion: extensions/v1beta1
     kind: Deployment
     metadata:

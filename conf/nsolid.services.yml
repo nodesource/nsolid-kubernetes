@@ -5,9 +5,9 @@ items:
     kind: Service
     metadata:
       namespace: nsolid
-      name: storage
+      name: console
     spec:
-      sessionAffinity: None
+      sessionAffinity: ClientIP
       ports:
         - name: api
           port: 4000
@@ -21,17 +21,8 @@ items:
         - name: bulk
           port: 9003
           targetPort: bulk
-      selector:
-        app: storage
-  - apiVersion: v1
-    kind: Service
-    metadata:
-      namespace: nsolid
-      name: console
-    spec:
-      sessionAffinity: ClientIP
-      ports:
-        - port: 80
+        - name: console
+          port: 80
           targetPort: console
       selector:
         app: console
