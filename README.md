@@ -1,13 +1,13 @@
-[![NSolid, Docker, and Kubernetes](docs/images/container-banner.jpg)](https://nodesource.com/products/nsolid)
+[![N|Solid, Docker, and Kubernetes](docs/images/container-banner.jpg)](https://nodesource.com/products/nsolid)
 
 ## Overview
 
 This repository is for deploying [N|Solid](https://nodesource.com/products/nsolid) with [Kubernetes](http://kubernetes.io/). It assumes that Kubernetes is already setup for your environment.
 
-![NSolid, Docker, and Kubernetes](docs/images/kubernetes-cluster.png)
+![N|Solid, Docker, and Kubernetes](docs/images/kubernetes-cluster.png)
 
 ### Table of Contents
-- [Installing kubernetes](#a1)
+- [Installing Kubernetes](#a1)
 - [Upgrading](#a1-1)
 - [Quickstart](#a2)
     - [Access N|Solid Dashboard](#a3)
@@ -25,12 +25,12 @@ This repository is for deploying [N|Solid](https://nodesource.com/products/nsoli
     - [Azure persistent disks](#a29)
     - [Bluemix persistent disks](#a30)
 - [Debugging / Troubleshooting](#a15)
-    - [Configuring Apps for N|Solid with kubernetes](#a16)
+    - [Configuring Apps for N|Solid with Kubernetes](#a16)
         - [Building an N|Solid app](#a17)
             - [Docker](#a18)
             - [Kubernetes](#a19)
         - [Accessing your App](#a20)
-    - [Accessing N|Solid kubernetes objects](#a21)
+    - [Accessing N|Solid Kubernetes objects](#a21)
         - [Setting `nsolid` as the default namespace](#a22)
     - [Running `nsolid-cli`](#a23)
     - [minikube](#a24)
@@ -81,7 +81,7 @@ Notes:
 1. Make sure your `kubectl` is pointing to your active cluster.
 1. If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running ./install.
 
-This command will install the N|Solid Console, N|Solid Storage, and a secure HTTPS proxy to the `nsolid` namespace.
+This command will install the N|Solid Console and a secure HTTPS proxy to the `nsolid` namespace.
 
 It can take a little while for Kubernetes to download the N|Solid Docker images.  You can verify
 that they are active by running:
@@ -90,7 +90,7 @@ that they are active by running:
 kubectl --namespace=nsolid get pods
 ```
 
-When all three pods (console, storage, and nginx-secure-proxy) have a status of 'Running', you may continue to access the N|Solid Console.
+When all three pods (console and nginx-secure-proxy) have a status of 'Running', you may continue to access the N|Solid Console.
 
 <a name="a3"/>
 
@@ -123,7 +123,7 @@ Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way]
 
 <a name="a4"/>
 
-### Uninstall N|Solid from kubernetes cluster
+### Uninstall N|Solid from Kubernetes cluster
 
 ```bash
 kubectl delete ns nsolid --cascade
@@ -209,13 +209,11 @@ kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
 kubectl create -f conf/nsolid.services.yml
 ```
 
-Note: If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running kubectl create.
+Note: If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running `kubectl create`.
 
 #### Create persistent disks
 
-N|Solid components require persistent storage.  Kubernetes does not (yet!)
-automatically handle provisioning of disks consistently across all cloud providers.
-As such, you will need to manually create the persistent volumes.
+N|Solid components require persistent storage. Kubernetes does not (yet!) automatically handle provisioning of disks consistently across all cloud providers. As such, you will need to manually create the persistent volumes.
 
 <a name="a13"/>
 
@@ -224,7 +222,7 @@ As such, you will need to manually create the persistent volumes.
 Make sure the zone matches the zone you brought up your cluster in!
 
 ```
-gcloud compute disks create --size 10GB nsolid-storage
+gcloud compute disks create --size 10GB nsolid-console
 ```
 
 <a name="a14"/>
@@ -295,10 +293,10 @@ kubectl create -f conf/nsolid.cloud.yml
 
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:boron-latest`.
+Make sure your docker image is build on top of `nodesource/nsolid:carbon-latest`.
 
 ```dockerfile
-FROM nodesource/nsolid:boron-latest
+FROM nodesource/nsolid:carbon-latest
 ```
 
 <a name="a19"/>
@@ -312,11 +310,11 @@ When defining your application make sure the following `ENV` are set.
     - name: NSOLID_APPNAME
       value: sample-app
     - name: NSOLID_COMMAND
-      value: "storage.nsolid:9001"
+      value: "console.nsolid:9001"
     - name: NSOLID_DATA
-      value: "storage.nsolid:9002"
+      value: "console.nsolid:9002"
     - name: NSOLID_BULK
-      value: "storage.nsolid:9003"
+      value: "console.nsolid:9003"
 ```
 
 Optional flags:
@@ -324,10 +322,10 @@ Optional flags:
 ```yaml
   env:
     - name: NSOLID_TAGS
-      value: "nsolid-boron,staging"
+      value: "nsolid-carbon,staging"
 ```
 
-A comma seperate list of tags that can be used to filter processes in the N|Solid console.
+A comma separate list of tags that can be used to filter processes in the N|Solid Console.
 
 <a name="a20"/>
 
@@ -343,7 +341,7 @@ Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way]
 
 <a name="a21"/>
 
-### Accessing N|Solid kubernetes objects
+### Accessing N|Solid Kubernetes objects
 
 Make sure you use the `--namespace=nsolid` flag on all `kubectl` commands.
 
@@ -364,10 +362,10 @@ kubectl config set-context {$context} --namespace=default // revert to default
 **Verify CLI**:
 
 ```bash
-kubectl exec {pod-name} -- nsolid-cli --remote=storage.nsolid:4000 ping
+kubectl exec {pod-name} -- nsolid-cli --remote=console.nsolid:4000 ping
 ```
 
-See [N|Solid cli docs](https://docs.nodesource.com/nsolid/2.1/docs#using-the-cli) for more info.
+See [N|Solid cli docs](https://docs.nodesource.com/nsolid/3.0/docs#using-the-cli) for more info.
 
 
 <a name="a24"/>
@@ -409,7 +407,7 @@ kubectl get svc {$service-name} --output='jsonpath={.spec.ports[0].nodePort}'
 
 ### Common Gotchas
 
-If you get the following message when trying to run `docker build` or communicating with the kubernetes api.
+If you get the following message when trying to run `docker build` or communicating with the Kubernetes API.
 
 ```bash
 Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
@@ -425,4 +423,4 @@ export DOCKER_API_VERSION=1.23
 
 ## License & Copyright
 
-**nsolid-kubernetes** is Copyright (c) 2017 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
+**nsolid-kubernetes** is Copyright (c) 2018 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
