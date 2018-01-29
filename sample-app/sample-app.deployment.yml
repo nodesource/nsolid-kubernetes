@@ -18,11 +18,11 @@ spec:
             - name: NSOLID_APPNAME
               value: sample-app
             - name: NSOLID_COMMAND
-              value: "storage.nsolid:9001"
+              value: "console.nsolid:9001"
             - name: NSOLID_DATA
-              value: "storage.nsolid:9002"
+              value: "console.nsolid:9002"
             - name: NSOLID_BULK
-              value: "storage.nsolid:9003"
+              value: "console.nsolid:9003"
             - name: K8_NODE
               valueFrom:
                 fieldRef:
@@ -40,7 +40,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: NSOLID_TAGS
-              value: "nsolid-v2.1.2, $(K8_NODE), $(K8_POD), NS:$(K8_NS), $(K8_IP)"
+              value: "nsolid-v3, $(K8_NODE), $(K8_POD), NS:$(K8_NS), $(K8_IP)"
             - name: PORT
               value: "4444"
           ports:

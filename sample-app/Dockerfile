@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:boron-latest
+FROM nodesource/nsolid:carbon-latest
 
 RUN mkdir -p /usr/src/app
 
