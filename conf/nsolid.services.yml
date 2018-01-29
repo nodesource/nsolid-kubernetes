@@ -9,9 +9,6 @@ items:
     spec:
       sessionAffinity: ClientIP
       ports:
-        - name: api
-          port: 4000
-          targetPort: api
         - name: command
           port: 9001
           targetPort: command

@@ -41,8 +41,6 @@ items:
             - name: NSOLID_CONSOLE_LOGS_INFLUX
               value: /var/lib/nsolid/console/influxdb.log
             ports:
-            - containerPort: 4000
-              name: api
             - containerPort: 9001
               name: command
             - containerPort: 9002

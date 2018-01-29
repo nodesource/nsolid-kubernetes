@@ -362,7 +362,7 @@ kubectl config set-context {$context} --namespace=default // revert to default
 **Verify CLI**:
 
 ```bash
-kubectl exec {pod-name} -- nsolid-cli --remote=console.nsolid:4000 ping
+kubectl exec {pod-name} -- nsolid-cli --remote=http://console.nsolid:6753 ping
 ```
 
 See [N|Solid cli docs](https://docs.nodesource.com/nsolid/3.0/docs#using-the-cli) for more info.
