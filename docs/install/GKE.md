@@ -45,7 +45,7 @@ gcloud container clusters create nsolid-cluster \
  --wait
 ```
 
-* Username & Password flags are for accessing your kubernetes cluster
+* Username & Password flags are for accessing your Kubernetes cluster
 * Enable cloud logging & monitoring flags only work if you have enabled them in the dashboard. Logging requires creating a bucket to dump log files to.
 * Scope: Allows your instances to have oauth access to particular parts of the cloud api. In this case `devstorage.read_write` allows access to buckets.
 * `wait` blocks the command until cluster and instances are ready. This could take 3-5 minutes.
