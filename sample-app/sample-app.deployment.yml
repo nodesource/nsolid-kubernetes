@@ -1,48 +1,75 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: sample-app
+  creationTimestamp: null
   labels:
     app: sample-app
+  name: sample-app
 spec:
+  progressDeadlineSeconds: 2147483647
   replicas: 1
+  revisionHistoryLimit: 2147483647
+  selector:
+    matchLabels:
+      app: sample-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
+      creationTimestamp: null
       labels:
         app: sample-app
     spec:
       containers:
-        - name: sample-app
-          image: "{username}/{image}:{tag}"
-          env:
-            - name: NSOLID_APPNAME
-              value: sample-app
-            - name: NSOLID_COMMAND
-              value: "console.nsolid:9001"
-            - name: NSOLID_DATA
-              value: "console.nsolid:9002"
-            - name: NSOLID_BULK
-              value: "console.nsolid:9003"
-            - name: K8_NODE
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-            - name: K8_POD
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: K8_NS
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.namespace
-            - name: K8_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
-            - name: NSOLID_TAGS
-              value: "nsolid-v3, $(K8_NODE), $(K8_POD), NS:$(K8_NS), $(K8_IP)"
-            - name: PORT
-              value: "4444"
-          ports:
-            - containerPort: 4444
-              name: sample-app
+      - env:
+        - name: NSOLID_APPNAME
+          value: sample-app
+        - name: NSOLID_COMMAND
+          value: console.nsolid:9001
+        - name: NSOLID_DATA
+          value: console.nsolid:9002
+        - name: NSOLID_BULK
+          value: console.nsolid:9003
+        - name: K8_NODE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: K8_POD
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: K8_NS
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: K8_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        - name: NSOLID_TAGS
+          value: nsolid-v3, $(K8_NODE), $(K8_POD), NS:$(K8_NS), $(K8_IP)
+        - name: PORT
+          value: "4444"
+        image: '{username}/{image}:{tag}'
+        imagePullPolicy: IfNotPresent
+        name: sample-app
+        ports:
+        - containerPort: 4444
+          name: sample-app
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}
