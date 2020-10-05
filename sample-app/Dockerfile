@@ -1,4 +1,4 @@
-FROM nodesource/nsolid:carbon-latest
+FROM nodesource/nsolid:erbium-latest
 
 RUN mkdir -p /usr/src/app
 
