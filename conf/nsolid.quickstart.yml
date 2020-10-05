@@ -32,7 +32,7 @@ items:
             value: /var/lib/nsolid/console/data
           - name: NSOLID_CONSOLE_LOGS_INFLUX
             value: /var/lib/nsolid/console/influxdb.log
-          image: nodesource/nsolid-console:carbon-latest
+          image: nodesource/nsolid-console:erbium-latest
           imagePullPolicy: IfNotPresent
           name: console
           ports:

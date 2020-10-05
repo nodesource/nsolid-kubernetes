@@ -293,10 +293,10 @@ kubectl create -f conf/nsolid.cloud.yml
 
 ##### Docker
 
-Make sure your docker image is build on top of `nodesource/nsolid:carbon-latest`.
+Make sure your docker image is build on top of `nodesource/nsolid:erbium-latest`.
 
 ```dockerfile
-FROM nodesource/nsolid:carbon-latest
+FROM nodesource/nsolid:erbium-latest
 ```
 
 <a name="a19"/>
@@ -322,7 +322,7 @@ Optional flags:
 ```yaml
   env:
     - name: NSOLID_TAGS
-      value: "nsolid-carbon,staging"
+      value: "nsolid-erbium,staging"
 ```
 
 A comma separate list of tags that can be used to filter processes in the N|Solid Console.

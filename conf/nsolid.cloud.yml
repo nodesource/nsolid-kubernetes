@@ -33,7 +33,7 @@ items:
           securityContext:
             fsGroup: 16753
           containers:
-          - image: nodesource/nsolid-console:carbon-latest
+          - image: nodesource/nsolid-console:erbium-latest
             name: console
             env:
             - name: NSOLID_CONSOLE_DATA_DIR
