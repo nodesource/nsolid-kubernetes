@@ -8,101 +8,77 @@ items:
       name: nsolid-console
     spec:
       accessModes:
-        - ReadWriteOnce
+        - ReadWriteOnce 
       resources:
         requests:
           storage: 10Gi
 ---
-apiVersion: extensions/v1beta1
-kind: DeploymentList
+apiVersion: v1
 items:
-  - apiVersion: extensions/v1beta1
-    kind: Deployment
-    metadata:
-      namespace: nsolid
-      labels:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    creationTimestamp: null
+    labels:
+      app: console
+    name: console
+    namespace: nsolid
+  spec:
+    progressDeadlineSeconds: 2147483647
+    replicas: 1
+    revisionHistoryLimit: 2147483647
+    selector:
+      matchLabels:
         app: console
-      name: console
-    spec:
-      replicas: 1
-      template:
-        metadata:
-          labels:
-            app: console
-        spec:
-          securityContext:
-            fsGroup: 16753
-          containers:
-          - image: nodesource/nsolid-console:erbium-latest
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: console
+      spec:
+        containers:
+        - env:
+          - name: NSOLID_CONSOLE_DATA_DIR
+            value: /var/lib/nsolid/console/data
+          - name: NSOLID_CONSOLE_LOGS_INFLUX
+            value: /var/lib/nsolid/console/influxdb.log
+          image: nodesource/nsolid-console:erbium-latest
+          imagePullPolicy: IfNotPresent
+          name: console
+          ports:
+          - containerPort: 9001
+            name: command
+            protocol: TCP
+          - containerPort: 9002
+            name: data
+            protocol: TCP
+          - containerPort: 9003
+            name: bulk
+            protocol: TCP
+          - containerPort: 6753
             name: console
-            env:
-            - name: NSOLID_CONSOLE_DATA_DIR
-              value: /var/lib/nsolid/console/data
-            - name: NSOLID_CONSOLE_LOGS_INFLUX
-              value: /var/lib/nsolid/console/influxdb.log
-            ports:
-            - containerPort: 9001
-              name: command
-            - containerPort: 9002
-              name: data
-            - containerPort: 9003
-              name: bulk
-            - containerPort: 6753
-              name: console
-            volumeMounts:
-            - name: nsolid-console
-              mountPath: /var/lib/nsolid
-          volumes:
-          - name: nsolid-console
-            persistentVolumeClaim:
-              claimName: nsolid-console
-  - apiVersion: extensions/v1beta1
-    kind: Deployment
-    metadata:
-      namespace: nsolid
-      labels:
-        app: nginx-secure-proxy
-      name: nginx-secure-proxy
-    spec:
-      replicas: 1
-      template:
-        metadata:
-          labels:
-            app: nginx-secure-proxy
-        spec:
-          containers:
-          - image: nodesource/nsolid-nginx:stable
-            imagePullPolicy: Always
-            name: nginx-secure-proxy
-            ports:
-            - containerPort: 10080
-              protocol: TCP
-            - containerPort: 10443
-              protocol: TCP
-            - containerPort: 8080
-              protocol: TCP
-            volumeMounts:
-            - mountPath: /etc/nginx/
-              name: nginx-config
-            - mountPath: /etc/nginx/ssl/
-              name: nginx-tls
-            livenessProbe:
-              httpGet:
-                path: /
-                port: 8080
-              initialDelaySeconds: 30
-              timeoutSeconds: 1
-            readinessProbe:
-              httpGet:
-                path: /
-                port: 8080
-              initialDelaySeconds: 5
-              timeoutSeconds: 1
-          restartPolicy: Always
-          volumes:
-          - name: nginx-tls
-            secret:
-              secretName: nginx-tls
-          - name: nginx-config
-            configMap:
-              name: nginx-config
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/nsolid
+            name: nsolid-console
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext:
+          fsGroup: 16753
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: nsolid-console
+          persistentVolumeClaim:
+            claimName: nsolid-console
+  status: {}
+kind: List
+metadata: {}
