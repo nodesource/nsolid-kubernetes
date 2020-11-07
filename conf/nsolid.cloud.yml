@@ -4,7 +4,7 @@ items:
   - apiVersion: v1
     kind: PersistentVolumeClaim
     metadata:
-      namespace: nsolid
+      namespace: default
       name: nsolid-console
     spec:
       accessModes:
@@ -22,7 +22,7 @@ items:
     labels:
       app: console
     name: console
-    namespace: nsolid
+    namespace: default
   spec:
     progressDeadlineSeconds: 2147483647
     replicas: 1

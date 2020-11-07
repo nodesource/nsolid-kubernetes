@@ -1,0 +1,9 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: console-service
+spec:
+  selector:
+    app: console
+  ports:
+    - port: 6753 # Default port for image

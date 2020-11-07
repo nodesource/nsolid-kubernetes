@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nsolid-saas-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /user1
+            backend:
+              serviceName: console
+              servicePort: 6753
+          - path: /
+            backend:
+              serviceName: console
+              servicePort: 6753
+          - path: /user2
+            backend:
+              serviceName: console2
+              servicePort: 6753
