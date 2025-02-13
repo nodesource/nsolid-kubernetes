@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nsolid-deployment
+  labels:
+    app: nsolid
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nsolid
+  template:
+    metadata:
+      labels:
+        app: nsolid
+    spec:
+      securityContext:
+        runAsNonRoot: true
+      containers:
+        - name: nsolid
+          image: yourrepo/nsolid:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NSOLID_APPNAME
+              value: "Sample App"
+            - name: NSOLID_TAGS
+              value: "production,nextjs,nsolid-hydrogen"
+            - name: NSOLID_SAAS
+              valueFrom:
+                secretKeyRef:
+                  name: nsolid-saas-secret
+                  key: nsolid_saas
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      terminationGracePeriodSeconds: 30

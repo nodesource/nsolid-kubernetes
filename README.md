@@ -1,426 +1,165 @@
 [![N|Solid, Docker, and Kubernetes](docs/images/container-banner.jpg)](https://nodesource.com/products/nsolid)
 
-## Overview
+# N|Solid Kubernetes Guide
 
-This repository is for deploying [N|Solid](https://nodesource.com/products/nsolid) with [Kubernetes](http://kubernetes.io/). It assumes that Kubernetes is already setup for your environment.
+This repository is an open-source guide for building and deploying a Next.js 15 project using N|Solid Docker images. N|Solid is an enterprise fork of Node.js with integrated monitoring that connects to the N|Solid Console. Although you can run N|Solid independently, the full benefits are unlocked when it is connected to the console.
 
-![N|Solid, Docker, and Kubernetes](docs/images/kubernetes-cluster.png)
+The guide covers:
 
-### Table of Contents
-- [Installing Kubernetes](#a1)
-- [Upgrading](#a1-1)
-- [Quickstart](#a2)
-    - [Access N|Solid Dashboard](#a3)
-    - [Uninstall N|Solid](#a4)
-- [Deploy Sample App with N|Solid](#a5)
-- [Production Install](#a6)
-    - [N|Solid namespace](#a7)
-    - [nginx SSL certificates](#a8)
-    - [Basic Auth file](#a9)
-    - [Secret object for certs](#a10)
-    - [Configmap object for settings](#a11)
-    - [Define Services](#a12)
-    - [GCE persistent disks](#a13)
-    - [AWS persistent disks](#a14)
-    - [Azure persistent disks](#a29)
-    - [Bluemix persistent disks](#a30)
-- [Debugging / Troubleshooting](#a15)
-    - [Configuring Apps for N|Solid with Kubernetes](#a16)
-        - [Building an N|Solid app](#a17)
-            - [Docker](#a18)
-            - [Kubernetes](#a19)
-        - [Accessing your App](#a20)
-    - [Accessing N|Solid Kubernetes objects](#a21)
-        - [Setting `nsolid` as the default namespace](#a22)
-    - [Running `nsolid-cli`](#a23)
-    - [minikube](#a24)
-        - [Setting ENV for cluster](#a25)
-        - [Service Discovery](#a26)
-    - [Common Gotchas](#a27)
-- [License & Copyright](#a28)
+- Building Docker images (Alpine and Debian)
+- CI/CD pipelines using GitHub Actions
+- A sample Next.js “Hello World” application
+- Basic Kubernetes configuration for deployment
+- Configuring environment variables and secrets
 
-<a name="a1"/>
+## Repository Structure
 
-## Installing kubernetes
+- **docker/**  
+  Contains Dockerfiles for building the images:
+  - `Dockerfile.alpine` – Builds the Alpine-based image.
+  - `Dockerfile.debian` – Builds the Debian-based image.
+- **k8s/**  
+  Contains Kubernetes manifests used for deployment:
+  - Deployment, Service, Ingress, Secrets, ConfigMaps, and Persistent Volumes examples.
+- **sample-app/**  
+  A sample Next.js application (Hello World) to demonstrate deployment.
+- **.github/workflows/**  
+  Contains CI/CD pipeline files:
+  - `alpine-build-amd.yml` – Builds the Alpine image for AMD64.
+  - `alpine-build-arm.yml` – Builds the Alpine image for ARM64.
+  - `debian-build-amd.yml` – Builds the Debian image for AMD64.
+  - `debian-build-arm.yml` – Builds the Debian image for ARM64.
 
-* [local with minikube](./docs/install/local.md) - for local development / testing.
-* [kubernetes on GKE](./docs/install/GKE.md) - Google Container Engine
-* [kubernetes on aws](http://kubernetes.io/docs/getting-started-guides/aws/) - Amazon Web Services
-* [kubernetes on GCE](http://kubernetes.io/docs/getting-started-guides/gce/) - Google Compute Engine
-* [kubernetes on ACS](http://kubernetes.io/docs/getting-started-guides/azure/) - Microsoft Azure Container Service
-* [kubernetes on Bluemix](./docs/install/bluemix-setup.md) - IBM Cloud Container Service
+## Building the Docker Images
 
-<a name="a1-1"/>
+### GitHub Actions Pipelines
 
-## Upgrading
+Separate GitHub Actions workflows are provided to build images for different platforms:
 
-### local
+- **For Alpine-based images:**  
+  Use `alpine-build-amd.yml` for AMD64 and `alpine-build-arm.yml` for ARM64.
 
-Existing `nsolid-kubernetes` installs can be upgraded running the following command:
+- **For Debian-based images:**  
+  Use `debian-build-amd.yml` for AMD64 and `debian-build-arm.yml` for ARM64.
+
+Each workflow uses the appropriate Dockerfile (located in the `docker/` folder) and builds the image for the specified architecture.
+
+### Local Build
+
+To build locally, navigate to the repository root and run:
+
+For Debian:
 
 ```bash
-kubectl apply -f conf/nsolid.quickstart.yml
+docker build -t sample-app:debian -f docker/Dockerfile.debian .
 ```
 
-### Cloud
-
-If deployed to a cloud (AWS, Azure, GCP, Bluemix) please make sure to make the necessary adjustments to `conf/nsolid.cloud.yml`
+For Alpine:
 
 ```bash
-kubectl apply -f conf/nsolid.cloud.yml
+docker build -t sample-app:alpine -f docker/Dockerfile.alpine .
 ```
 
-<a name="a2"/>
+## Deploying on Kubernetes
 
-## Quickstart
+The `k8s/` folder contains basic configuration files to deploy the application. These include:
 
-```bash
-./install
-```
-Notes:
-1. Make sure your `kubectl` is pointing to your active cluster.
-1. If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running ./install.
+- **Deployment YAML:** Defines the N|Solid deployment with environment variables and secrets.
+- **Service YAML:** Exposes the deployment internally in the cluster.
+- **Ingress YAML:** Provides external access to the service.
+- **Secrets & ConfigMaps:** Manage sensitive values (like `nsolid_saas`) and application settings.
 
-This command will install the N|Solid Console and a secure HTTPS proxy to the `nsolid` namespace.
+### Example Deployment
 
-It can take a little while for Kubernetes to download the N|Solid Docker images.  You can verify
-that they are active by running:
+Below is a sample Kubernetes Deployment manifest that sets up N|Solid. It configures two environment variables: `NSOLID_APPNAME` for the application name, and `NSOLID_SAAS`, which is injected from a secret called `nsolid-saas-secret`.
 
-```
-kubectl --namespace=nsolid get pods
-```
-
-When all three pods (console and nginx-secure-proxy) have a status of 'Running', you may continue to access the N|Solid Console.
-
-<a name="a3"/>
-
-### Access N|Solid Dashboard
-
-#### Secure credentials
-
-* Default username: `nsolid`
-* Default password: `demo`
-
-#### With `minikube`
-
-```bash
-printf "\nhttps://$(minikube ip):$(kubectl get svc nginx-secure-proxy --namespace=nsolid --output='jsonpath={.spec.ports[1].nodePort}')\n"
-```
-
-or
-
-#### Cloud Deployment:
-
-```bash
-kubectl get svc nginx-secure-proxy --namespace=nsolid
-```
-
-Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way](./docs/misc/bluemix-external-ip.md).
-
-**NOTE:** You will need to ignore the security warning on the self signed certificate to proceed.
-
-![Welcome Screen](./docs/images/welcome.png)
-
-<a name="a4"/>
-
-### Uninstall N|Solid from Kubernetes cluster
-
-```bash
-kubectl delete ns nsolid --cascade
-```
-
-<a name="a5"/>
-
-## Deploy Sample App with N|Solid
-
-### Quick Start
-
-```bash
-cd sample-app
-docker build -t sample-app:v1 .
-kubectl create -f sample-app.service.yml
-kubectl create -f sample-app.deployment.yml
-```
-
-**NOTE:** the container image in `sample-app.deployment.yml` must be set to match your docker image name. E.g. if you are using `minikube` and ran `eval $(minikube docker-env)`, set the image to:
-
-```bash
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nsolid-deployment
+  labels:
+    app: nsolid
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nsolid
+  template:
+    metadata:
+      labels:
+        app: nsolid
     spec:
+      securityContext:
+        runAsNonRoot: true
       containers:
-        - name: sample-app
-          image: sample-app:v1
+        - name: nsolid
+          image: yourrepo/nsolid:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NSOLID_APPNAME
+              value: "Sample App"
+            - name: NSOLID_TAGS
+              value: "production,nextjs,nsolid-hydrogen"
+            - name: NSOLID_SAAS
+              valueFrom:
+                secretKeyRef:
+                  name: nsolid-saas-secret
+                  key: nsolid_saas
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      terminationGracePeriodSeconds: 30
 ```
 
-If you are working in a cloud environment, you will need to push the sample-app to a public Docker registry
-like [Docker Hub](https://hub.docker.com/), [Quay.io](https://quay.io), the [Azure Container Registry](https://azure.microsoft.com/en-us/services/container-registry/), or the [IBM Bluemix Container Registry](https://console.bluemix.net/docs/services/Registry/registry_images_.html#registry_images_), and update the sample-app Deployment file.
+### Creating the Secret
 
-
-<a name="a6"/>
-
-## Production Install
-
-**NOTE:** Assumes kubectl is configured and pointed at your Kubernetes cluster properly.
-
-<a name="a7"/>
-
-#### Create the namespace `nsolid` to help isolate and manage the N|Solid components.
-
-```
-kubectl create -f conf/nsolid.namespace.yml
-```
-
-<a name="a8"/>
-
-#### Create nginx SSL certificates
-
-```
-openssl req -x509 -nodes -newkey rsa:2048 -keyout conf/certs/nsolid-nginx.key -out conf/certs/nsolid-nginx.crt
-```
-
-<a name="a9"/>
-
-#### Create Basic Auth file
-
-```
-rm ./conf/nginx/htpasswd
-htpasswd -cb ./conf/nginx/htpasswd {username} {password}
-```
-
-<a name="a10"/>
-
-#### Create a `secret`  for certs to mount in nginx
-
-```
-kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
-```
-
-<a name="a11"/>
-
-#### Create `configmap` for nginx settings
-```
-kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
-```
-
-<a name="a12"/>
-
-#### Define the services
+Before deploying, create the secret that holds the `nsolid_saas` value. Replace `<base64-encoded-secret>` with your base64-encoded value.
 
 ```bash
-kubectl create -f conf/nsolid.services.yml
+kubectl create secret generic nsolid-saas-secret --from-literal=nsolid_saas=<your-secret-value>
 ```
 
-Note: If your cluster is a Bluemix _Lite_ cluster, [make this adjustment](./docs/install/bluemix-lite.md) to conf/nsolid.services.yml before running `kubectl create`.
+## How to Deploy
 
-#### Create persistent disks
+1. Build your Docker image (either via GitHub Actions or locally).
+2. Push the image to your container registry if deploying to a cloud cluster.
+3. Apply the Kubernetes manifests from the `k8s/` folder:
+   ```bash
+   kubectl apply -f k8s/
+   ```
+4. Monitor the deployment and check the pods:
+   ```bash
+   kubectl get pods --namespace=default
+   ```
 
-N|Solid components require persistent storage. Kubernetes does not (yet!) automatically handle provisioning of disks consistently across all cloud providers. As such, you will need to manually create the persistent volumes.
+## Monitoring with N|Solid Console SaaS
 
-<a name="a13"/>
+N|Solid provides integrated monitoring. You can create a free account on the N|Solid Console SaaS to monitor your processes:
 
-##### On Google Cloud
+[Sign up for a free N|Solid Console account](https://accounts.nodesource.com/sign-up)
 
-Make sure the zone matches the zone you brought up your cluster in!
+## About N|Solid
 
-```
-gcloud compute disks create --size 10GB nsolid-console
-```
+N|Solid is an enterprise version of Node.js with integrated monitoring and enhanced security. It connects to the N|Solid Console to provide real-time insights, process management, and more. Although it can be used as a standalone runtime, its full potential is realized when connected to the console. For more details, visit [nodesource.com](https://nodesource.com).
 
-<a name="a14"/>
+## License
 
-##### On AWS
-
-We need to create our disks and then update the volumeIds in conf/nsolid.persistent.aws.yml.
-
-Make sure the zone matches the zone you brought up your cluster in!
-
-```
-aws ec2 create-volume --availability-zone eu-west-1a --size 10 --volume-type gp2
-```
-
-<a name="a29"/>
-
-##### On Azure
-
-There's no need to explicitly create a persistent disk, since the Azure Container Service provides a default `StorageClass`, which will dynamically create them as needed (e.g. when a `Pod` includes a `PersistentVolumeClaim`).
-
-<a name="a30"/>
-
-##### On Bluemix
-
-There's no need to explicitly create a persistent disk, since the Bluemix Container Service provides a default `StorageClass`, which will dynamically create them as needed (e.g. when a `Pod` includes a `PersistentVolumeClaim`).
-
-
-#### Configure Kubernetes to utilize the newly created persistent volumes
-
-##### GCE
-```bash
-kubectl create -f conf/nsolid.persistent.gce.yml
-```
-
-##### AWS
-```bash
-kubectl create -f conf/nsolid.persistent.aws.yml
-```
-
-##### Azure
-
-There's no need to explicitly create a `PersistentVolume` object, since they will be dynamically provisioned by the default `StorageClass`.
-
-##### Bluemix
-
-There's no need to explicitly create a `PersistentVolume` object, since they will be dynamically provisioned by the default `StorageClass`.
-
-
-#### Deploy N|Solid components
-
-```bash
-kubectl create -f conf/nsolid.cloud.yml
-```
-
-<a name="a15"/>
-
-## Debugging / Troubleshooting
-
-<a name="a16"/>
-
-### Configuring Apps for N|Solid with Kubernetes
-
-<a name="a17"/>
-
-#### Building an N|Solid app
-
-<a name="a18"/>
-
-##### Docker
-
-Make sure your docker image is build on top of `nodesource/nsolid:carbon-latest`.
-
-```dockerfile
-FROM nodesource/nsolid:carbon-latest
-```
-
-<a name="a19"/>
-
-##### Kubernetes
-
-When defining your application make sure the following `ENV` are set.
-
-```yaml
-  env:
-    - name: NSOLID_APPNAME
-      value: sample-app
-    - name: NSOLID_COMMAND
-      value: "console.nsolid:9001"
-    - name: NSOLID_DATA
-      value: "console.nsolid:9002"
-    - name: NSOLID_BULK
-      value: "console.nsolid:9003"
-```
-
-Optional flags:
-
-```yaml
-  env:
-    - name: NSOLID_TAGS
-      value: "nsolid-carbon,staging"
-```
-
-A comma separate list of tags that can be used to filter processes in the N|Solid Console.
-
-<a name="a20"/>
-
-#### Accessing your App
-
-```bash
-kubectl get svc {service-name}
-```
-
-The `EXTERNAL-IP` will access the application.  
-Open `EXTERNAL-IP`.  If using Bluemix _Lite_ cluster, get EXTERNAL-IP [this way](./docs/misc/bluemix-external-ip.md).
-
-
-<a name="a21"/>
-
-### Accessing N|Solid Kubernetes objects
-
-Make sure you use the `--namespace=nsolid` flag on all `kubectl` commands.
-
-<a name="a22"/>
-
-#### Setting `nsolid` as the default namespace
-
-```bash
-kubectl config current-context // outputs current context
-kubectl config set-context {$context} --namespace=nsolid // make 'nsolid' the default namespace
-kubectl config set-context {$context} --namespace=default // revert to default
-```
-
-<a name="a23"/>
-
-### Running `nsolid-cli`
-
-**Verify CLI**:
-
-```bash
-kubectl exec {pod-name} -- nsolid-cli --remote=http://console.nsolid:6753 ping
-```
-
-See [N|Solid cli docs](https://docs.nodesource.com/nsolid/3.0/docs#using-the-cli) for more info.
-
-
-<a name="a24"/>
-
-### minikube
-
-Minikube is a bit different then a normal Kubernetes install. The DNS service isn't running so discovering is a bit more involved. IP addresses are not dynamically assigned, instead we must use the host ports the service is mapped to.
-
-<a name="a25"/>
-
-#### Setting ENV for cluster
-
-If your doing a lot of work with docker and minikube it is recommended that you run the following:
-
-```bash
-eval $(minikube docker-env)
-```
-
-<a name="a26"/>
-
-### Service discovery
-
-Get the kubernetes cluster ip address:
-
-```bash
-minikube ip
-```
-
-To get the service port:
-
-```bash
-kubectl get svc {$service-name} --output='jsonpath={.spec.ports[0].nodePort}'
-```
-
-**Note:** If your service exposes multiple ports you may want to examine with `--output='json'` instead.
-
-
-<a name="a27"/>
-
-### Common Gotchas
-
-If you get the following message when trying to run `docker build` or communicating with the Kubernetes API.
-
-```bash
-Error response from daemon: client is newer than server (client API version: 1.24, server API version: 1.23)
-```
-
-Export the `DOCKER_API_VERSION` to match the server API version.
-
-```bash
-export DOCKER_API_VERSION=1.23
-```
-
-<a name="a28" />
-
-## License & Copyright
-
-**nsolid-kubernetes** is Copyright (c) 2018 NodeSource and licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included [LICENSE.md](LICENSE.md) file for more details.
+This repository is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for more details.
