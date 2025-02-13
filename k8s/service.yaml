@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nsolid-service
+  labels:
+    app: nsolid
+spec:
+  selector:
+    app: nsolid
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

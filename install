@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-kubectl create -f conf/nsolid.namespace.yml
-kubectl create secret generic nginx-tls --from-file=conf/certs --namespace=nsolid
-kubectl create configmap nginx-config --from-file=conf/nginx --namespace=nsolid
-kubectl create -f conf/nsolid.services.yml
-kubectl create -f conf/nsolid.quickstart.yml --record
