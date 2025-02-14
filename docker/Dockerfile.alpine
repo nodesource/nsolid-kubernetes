@@ -58,4 +58,4 @@ USER root
 
 RUN mkdir -p /artifacts /html_output
 
-CMD ["0x", "--kernel-tracing", "--output-dir", "/artifacts", "--output-html", "/html_output", "--", "node", "server.js"]
+CMD ["0x", "--kernel-tracing", "--output-dir", "/artifacts/{pid}.0x", "--output-html", "/html_output/{name}.html", "--", "node", "server.js"]
