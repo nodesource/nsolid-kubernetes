@@ -56,6 +56,7 @@ spec:
               mountPath: /artifacts
             - name: html-output-volume
               mountPath: /html_output
+          command: ["0x", "--kernel-tracing", "--output-dir", "/artifacts/{pid}.0x", "--output-html", "/html_output/{name}.html", "--", "node", "server.js"]
       terminationGracePeriodSeconds: 30
       volumes:
         - name: artifacts-volume
