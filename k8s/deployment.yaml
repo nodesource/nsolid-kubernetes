@@ -51,4 +51,16 @@ spec:
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 5
+          volumeMounts:
+            - name: artifacts-volume
+              mountPath: /artifacts
+            - name: html-output-volume
+              mountPath: /html_output
       terminationGracePeriodSeconds: 30
+      volumes:
+        - name: artifacts-volume
+          persistentVolumeClaim:
+            claimName: artifacts-pvc
+        - name: html-output-volume
+          persistentVolumeClaim:
+            claimName: html-output-pvc
