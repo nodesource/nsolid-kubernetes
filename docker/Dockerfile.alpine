@@ -44,8 +44,9 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
+RUN npm install -g 0x
 
-USER nextjs
+RUN apk add sudo perf
 
 EXPOSE 3000
 
@@ -53,4 +54,8 @@ ENV PORT=3000
 
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["node", "server.js"]
+USER root
+
+RUN mkdir -p /artifacts /html_output
+
+CMD ["0x", "--kernel-tracing", "--output-dir", "/artifacts", "--output-html", "/html_output", "--", "node", "server.js"]

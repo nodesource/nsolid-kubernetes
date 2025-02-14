@@ -5,7 +5,7 @@ metadata:
   labels:
     app: nsolid
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: nsolid
@@ -14,11 +14,10 @@ spec:
       labels:
         app: nsolid
     spec:
-      securityContext:
-        runAsNonRoot: true
       containers:
         - name: nsolid
-          image: yourrepo/nsolid:latest
+          imagePullPolicy: Always
+          image: 800406105498.dkr.ecr.us-west-2.amazonaws.com/kubernetes/test:latest
           ports:
             - containerPort: 3000
           env:
@@ -26,11 +25,11 @@ spec:
               value: "Sample App"
             - name: NSOLID_TAGS
               value: "production,nextjs,nsolid-hydrogen"
-            - name: NSOLID_SAAS
-              valueFrom:
-                secretKeyRef:
-                  name: nsolid-saas-secret
-                  key: nsolid_saas
+            # - name: NSOLID_SAAS
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: nsolid-saas-secret
+            #       key: nsolid_saas
           resources:
             requests:
               cpu: "100m"
@@ -38,15 +37,17 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          securityContext:
+            privileged: true
           livenessProbe:
             httpGet:
-              path: /health
+              path: /
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /health
+              path: /
               port: 3000
             initialDelaySeconds: 10
             periodSeconds: 5
