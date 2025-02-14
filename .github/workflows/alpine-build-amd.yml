@@ -1,10 +1,10 @@
-name:  Build - Alpine Image (amd64)
+name: Build - Alpine Image (amd64)
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
   docker:
